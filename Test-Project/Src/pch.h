@@ -21,5 +21,6 @@
 #include <iostream>
 #include <cassert>
 #include <chrono>
+#include <mutex>
 
 #include "SimpleMath.h"

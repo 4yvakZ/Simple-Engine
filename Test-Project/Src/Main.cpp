@@ -3,6 +3,7 @@
 #include "Game.h"
 
 #include "MyGameObject.h"
+#include "Transform.h"
 
 using namespace SimpleEngine;
 

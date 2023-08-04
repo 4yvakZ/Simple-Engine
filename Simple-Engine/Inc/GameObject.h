@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "Game.h"
 #include "RenderSystem.h"
+#include "Transform.h"
 
 namespace SimpleEngine
 {
@@ -26,22 +27,34 @@ namespace SimpleEngine
 		virtual void update(float deltaTime);
 		virtual void init();
 
-		auto parent() {
+		auto parent() 
+		{
 			return mParent;
 		}
 
-		void setParent(std::shared_ptr<GameObject> parent) {
+		void setParent(std::shared_ptr<GameObject> parent) 
+		{
 			mParent = parent;
+		}
+
+		void setTransform(const Transform& transform)
+		{
+			mTransform = transform;
+		}
+
+		const Transform& getTransform() {
+			return mTransform;
 		}
 
 	private:
 		std::shared_ptr<GameObject> mParent;
 		std::vector<std::shared_ptr<Component>> mComponents;
+		Transform mTransform;
 
 	protected:
 		template<class T, class ...Ts, class = std::enable_if_t<
-			std::is_base_of<
-			std::decay_t<Component>, T>::value>>
+			std::is_base_of_v<
+			std::decay_t<Component>, T>>>
 			std::shared_ptr<T> createComponent(Ts&&...args);
 	};
 
@@ -50,7 +63,8 @@ namespace SimpleEngine
 	{
 		auto component = std::make_shared<T>(std::forward<Ts>(args)...);
 		mComponents.emplace_back(component);
-		if (auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component)) {
+		if (auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component)) 
+		{
 			Game::getRenderSystem()->addRenderComponent(renderComponent);
 		}
 		return component;

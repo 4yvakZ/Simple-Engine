@@ -204,6 +204,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </ClCompile>
     <ClCompile Include="Src\RenderSystem.cpp" />
     <ClCompile Include="Src\ShaderStructs.cpp" />
+    <ClCompile Include="Src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Component.h" />
@@ -218,6 +219,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     <ClInclude Include="Inc\RenderComponent.h" />
     <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Inc\ShaderStructs.h" />
+    <ClInclude Include="Inc\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

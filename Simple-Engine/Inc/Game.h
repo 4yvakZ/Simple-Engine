@@ -67,13 +67,13 @@ namespace SimpleEngine
 		static std::vector<std::weak_ptr<GameObject>> mGameObjects;
 	public:
 		template<class T, class...Ts, class = std::enable_if_t<
-			std::is_base_of<
-			std::decay_t<Game>, T>::value>>
+			std::is_base_of_v<
+			std::decay_t<Game>, T>>>
 			static std::shared_ptr<Game> createGameInstance(Ts&&... args);
 
 		template<class T, class ...Ts, class = std::enable_if_t<
-			std::is_base_of<
-			std::decay_t<GameObject>, T>::value>>
+			std::is_base_of_v<
+			std::decay_t<GameObject>, T>>>
 			static std::shared_ptr<T> createGameObject(Ts&&...args);
 
 		static std::shared_ptr<Game> getInstance()

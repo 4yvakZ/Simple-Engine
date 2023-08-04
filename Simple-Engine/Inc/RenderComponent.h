@@ -10,7 +10,7 @@ namespace SimpleEngine
 	class RenderComponent : public Component
 	{
 	public:
-		RenderComponent(std::shared_ptr<Material> material);
+		explicit RenderComponent(std::shared_ptr<Material> material);
 
 		// Inherited via Component
 		virtual void init() override;

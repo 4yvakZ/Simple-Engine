@@ -48,7 +48,7 @@ namespace SimpleEngine
 	template<class T, class ...Ts, class>
 	std::shared_ptr<T> GameObject::createComponent(Ts && ...args)
 	{
-		auto component = std::make_shared<T>(std::forward<T>(args)...);
+		auto component = std::make_shared<T>(std::forward<Ts>(args)...);
 		mComponents.emplace_back(component);
 		if (auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component)) {
 			Game::getRenderSystem()->addRenderComponent(renderComponent);

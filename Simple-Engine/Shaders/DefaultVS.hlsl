@@ -8,7 +8,11 @@ PS_IN main(VS_IN input)
     
     output.pos = float4(input.pos, 1.0f);
     
+#ifdef PLAIN
+    output.color = input.color;
+#else
     output.uv = input.uv;
+#endif
     output.normal = input.normal;
 
     return output;

@@ -2,9 +2,13 @@
 #include "AssetManager.h"
 #include "Mesh.h"
 
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags  
+
 using namespace DirectX::SimpleMath;
 
-std::vector<SimpleEngine::Mesh> SimpleEngine::AssetManager::importMeshes(std::string modelFileName)
+std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::importMeshes(std::string modelFileName)
 {
 	// Create an instance of the Importer class
 	Assimp::Importer importer;
@@ -24,23 +28,23 @@ std::vector<SimpleEngine::Mesh> SimpleEngine::AssetManager::importMeshes(std::st
 	if (nullptr == scene)
 	{
 		std::cout << "Missing file " << modelFileName << "\n";
-		return std::vector<Mesh>();
+		return std::vector<std::shared_ptr<Mesh>>();
 	}
 
-	auto meshes = std::vector<Mesh>();
+	auto meshes = std::vector<std::shared_ptr<Mesh>>();
 
 	searchNode(scene, scene->mRootNode, meshes);
 
 	return meshes;
 }
 
-void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, std::vector<Mesh>& meshes)
+void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, std::vector<std::shared_ptr<Mesh>>& meshes)
 {
 	if (node->mNumMeshes > 0)
 	{
 		for (size_t i = 0; i < node->mNumMeshes; i++)
 		{
-			Mesh myMesh;
+			std::shared_ptr<Mesh> myMesh = std::make_shared<Mesh>();
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
 			size_t nVertecis = mesh->mNumVertices;
@@ -65,7 +69,7 @@ void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, 
 				//	normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 				//}
 
-				myMesh.mVertecis.emplace_back(point, UV, normal);
+				myMesh->mVertecis.emplace_back(point, UV, normal);
 			}
 
 
@@ -73,9 +77,9 @@ void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, 
 			aiFace* meshFaces = mesh->mFaces;
 			for (size_t i = 0; i < nFaces; i++)
 			{
-				myMesh.mIndecis.push_back(meshFaces[i].mIndices[0]);
-				myMesh.mIndecis.push_back(meshFaces[i].mIndices[1]);
-				myMesh.mIndecis.push_back(meshFaces[i].mIndices[2]);
+				myMesh->mIndecis.push_back(meshFaces[i].mIndices[0]);
+				myMesh->mIndecis.push_back(meshFaces[i].mIndices[1]);
+				myMesh->mIndecis.push_back(meshFaces[i].mIndices[2]);
 			}
 
 			meshes.push_back(myMesh);

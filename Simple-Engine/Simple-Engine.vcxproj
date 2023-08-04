@@ -102,10 +102,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SOlutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"</Command>
+      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"
+xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,10 +129,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SOlutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"</Command>
+      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"
+xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -150,10 +152,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SOlutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"</Command>
+      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"
+xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,10 +179,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SOlutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"</Command>
+      <Command>xcopy /y /s "$(ProjectDir)Shaders\" "$(SolutionDir)shaders\"
+xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

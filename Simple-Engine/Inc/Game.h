@@ -102,7 +102,7 @@ namespace SimpleEngine
 	std::shared_ptr<T> Game::createGameObject(Ts && ...args)
 	{
 		assert(("Game instance have not been created", mInstance));
-		auto gameObject = std::make_shared<T>(std::forward<T>(args)...);
+		auto gameObject = std::make_shared<T>(std::forward<Ts>(args)...);
 		mGameObjects.emplace_back(gameObject);
 		return gameObject;
 	}

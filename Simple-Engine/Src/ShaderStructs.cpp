@@ -4,7 +4,7 @@
 using namespace DirectX::SimpleMath;
 
 SimpleEngine::VertexData::VertexData(Vector3 pos, Vector2 uv,Vector3 normal) :
-    mPos(pos), mColor(Color(1, 1, 1, 1)), mUv(uv), mNormal(normal)
+    mPos(pos), mColor(Color(pos)), mUv(uv), mNormal(normal)
 {
 }
 

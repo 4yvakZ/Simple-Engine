@@ -12,10 +12,14 @@ SimpleEngine::Material::Material():
 
 void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 {
+	//D3D_SHADER_MACRO shaderMacros[] = {"PLAIN", "true", "FORWARD", "true", nullptr, nullptr};
+
+	D3D_SHADER_MACRO shaderMacros[] = { "PLAIN", "true", nullptr, nullptr };
+
 	ID3DBlob* errorVertexCode = nullptr;
 	std::wstring VSFileName(mVSFileName.begin(), mVSFileName.end());
 	auto res = D3DCompileFromFile(VSFileName.c_str(),
-		nullptr /*macros*/,
+		shaderMacros /*macros*/,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"main",
 		"vs_5_0",
@@ -41,12 +45,10 @@ void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 
 	///pixelShaderByteCode initialization
 
-	D3D_SHADER_MACRO Shader_Macros[] = { nullptr, nullptr };
-
 	std::wstring PSFileName(mPSFileName.begin(), mPSFileName.end());
 	ID3DBlob* errorPixelCode;
 	res = D3DCompileFromFile(PSFileName.c_str(),
-		Shader_Macros /*macros*/,
+		shaderMacros /*macros*/,
 		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"main",
 		"ps_5_0",

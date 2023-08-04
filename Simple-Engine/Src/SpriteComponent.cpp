@@ -27,7 +27,7 @@ void SimpleEngine::SpriteComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 	/*context->VSSetConstantBuffers(0, 1, &constBuffer);
 	context->PSSetConstantBuffers(0, 1, &constBuffer);*/
 
-	context->DrawIndexed(mIndecis.size(), 0, 0);
+	context->DrawIndexed(static_cast<UINT>(mIndecis.size()), 0, 0);
 }
 
 void SimpleEngine::SpriteComponent::init()
@@ -36,7 +36,7 @@ void SimpleEngine::SpriteComponent::init()
 
 	mVertecis.reserve(4);
 
-	VertexData point(Vector3 (-0.5, -0.5, 0.5), Color(1,1,1,1));
+	VertexData point(Vector3 (-0.5, -0.5, 0.5), Color(0,1,0,1));
 	mVertecis.push_back(point);
 	point.mPos.y = 0.5;
 	mVertecis.push_back(point);

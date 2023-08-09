@@ -67,6 +67,8 @@ void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeig
 	D3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+
+	initFrameConstBuffer();
 }
 
 void SimpleEngine::RenderSystem::prepareFrame()
@@ -78,6 +80,8 @@ void SimpleEngine::RenderSystem::prepareFrame()
 
 void SimpleEngine::RenderSystem::draw()
 {
+	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
+
 	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
 	{
 		auto renderer = it->lock();
@@ -101,7 +105,42 @@ void SimpleEngine::RenderSystem::endFrame()
 	mSwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
 
+void SimpleEngine::RenderSystem::update(const FrameConstBufferData& frameBufferData)
+{
+	updateFrameConstBuffer(frameBufferData);
+}
+
 void SimpleEngine::RenderSystem::addRenderComponent(std::shared_ptr<RenderComponent> renderComponent)
 {
 	mRenderComponents.emplace_back(renderComponent);
+}
+
+void SimpleEngine::RenderSystem::initFrameConstBuffer()
+{
+	D3D11_BUFFER_DESC constBufDesc = {};
+	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufDesc.MiscFlags = 0;
+	constBufDesc.StructureByteStride = 0;
+	constBufDesc.ByteWidth = sizeof(mFrameConstBufferData);
+
+	D3D11_SUBRESOURCE_DATA constData = {};
+	constData.pSysMem = &mFrameConstBufferData;
+	constData.SysMemPitch = 0;
+	constData.SysMemSlicePitch = 0;
+
+	mDevice->CreateBuffer(&constBufDesc, &constData, mFrameConstBuffer.GetAddressOf());
+}
+
+void SimpleEngine::RenderSystem::updateFrameConstBuffer(const FrameConstBufferData& frameBufferData)
+{
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+	mContext->Map(mFrameConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	memcpy(mappedResource.pData, &frameBufferData, sizeof(FrameConstBufferData));
+
+	mContext->Unmap(mFrameConstBuffer.Get(), 0);
 }

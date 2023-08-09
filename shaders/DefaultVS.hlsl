@@ -6,7 +6,7 @@ PS_IN main(VS_IN input)
     
     output.worldPos = float4(input.pos, 1.0f);
     
-    output.pos = float4(input.pos, 1.0f);
+    output.pos = mul(float4(input.pos, 1.0f), viewProjection);
     
 #ifdef PLAIN
     output.color = input.color;

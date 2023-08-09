@@ -1,4 +1,5 @@
 #pragma once
+#include "ShaderStructs.h"
 
 namespace SimpleEngine {
 
@@ -19,6 +20,8 @@ namespace SimpleEngine {
 
 		virtual void endFrame();
 
+		virtual void update(const FrameConstBufferData& frameBufferData);
+
 		auto getDevice() {
 			return mDevice;
 		}
@@ -26,6 +29,16 @@ namespace SimpleEngine {
 		void addRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
 
 	private:
+
+		void initFrameConstBuffer();
+
+		void updateFrameConstBuffer(const FrameConstBufferData& frameBufferData);
+
+	private:
+		
+		FrameConstBufferData mFrameConstBufferData;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> mFrameConstBuffer;
+
 		Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> mContext;
 		Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;

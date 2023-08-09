@@ -15,21 +15,21 @@ void SimpleEngine::MeshComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceContex
 	UINT strides[] = { 48 };
 	UINT offsets[] = { 0 };
 
-	mMaterial->bind(context);
+	getMaterial()->bind(context);
 
 	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	context->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), strides, offsets);
+	context->IASetIndexBuffer(getIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, getVertexBuffer().GetAddressOf(), strides, offsets);
 
 	/*context->VSSetConstantBuffers(0, 1, &constBuffer);
 	context->PSSetConstantBuffers(0, 1, &constBuffer);*/
 
-	context->DrawIndexed(static_cast<UINT>(mMesh->mIndecis.size()), 0, 0);
+	context->DrawIndexed(static_cast<UINT>(mMesh->getIndecis().size()), 0, 0);
 }
 
 void SimpleEngine::MeshComponent::init()
 {
 	RenderComponent::init();
 
-	initVertexandIndexBuffer(mMesh->mVertecis, mMesh->mIndecis);
+	initVertexandIndexBuffer(mMesh->getVertecis(), mMesh->getIndecis());
 }

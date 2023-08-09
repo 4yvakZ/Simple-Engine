@@ -27,3 +27,15 @@ struct PS_IN
     float3 normal : NORMAL0;
 };
 #endif
+
+cbuffer FRAME_CONST_BUF : register(b0)
+{
+    Matrix viewProjection;
+    float4 cameraPos;
+}
+
+cbuffer OBJECT_CONST_BUF : register(b1)
+{
+    Matrix world;
+    Matrix invWorld;
+}

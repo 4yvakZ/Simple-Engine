@@ -187,6 +187,11 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Utils.cpp" />
+    <ClCompile Include="Src\CameraComponent.cpp" />
+    <ClCompile Include="Src\SceneComponent.cpp" />
+    <ClCompile Include="Src\Delegates.cpp" />
+    <ClCompile Include="Src\InputDevice.cpp" />
     <ClCompile Include="Src\MeshComponent.cpp" />
     <ClCompile Include="Src\SpriteComponent.cpp" />
     <ClCompile Include="Src\RenderComponent.cpp" />
@@ -207,6 +212,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     <ClCompile Include="Src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Inc\CameraComponent.h" />
     <ClInclude Include="Inc\Component.h" />
     <ClInclude Include="Inc\GameObject.h" />
     <ClInclude Include="Inc\AssetManager.h" />
@@ -217,6 +223,11 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     <ClInclude Include="Inc\MeshComponent.h" />
     <ClInclude Include="Inc\SpriteComponent.h" />
     <ClInclude Include="Inc\RenderComponent.h" />
+    <ClInclude Include="Inc\SceneComponent.h" />
+    <ClInclude Include="Inc\Utils.h" />
+    <ClInclude Include="Src\Delegates.h" />
+    <ClInclude Include="Inc\InputDevice.h" />
+    <ClInclude Include="Inc\Keys.h" />
     <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Inc\ShaderStructs.h" />
     <ClInclude Include="Inc\Transform.h" />
@@ -246,6 +257,9 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Src\Delegates.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

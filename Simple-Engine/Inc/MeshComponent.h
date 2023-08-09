@@ -3,7 +3,7 @@
 
 namespace SimpleEngine
 {
-	class Mesh;
+	struct Mesh;
 
 	class MeshComponent : public RenderComponent
 	{

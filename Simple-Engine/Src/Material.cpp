@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Material.h"
 
+#include <DirectXTex.h>
+
 const std::string SimpleEngine::Material::kDefaultPSName = "../shaders/DefaultPS.hlsl";
 const std::string SimpleEngine::Material::kDefaultVSName = "../shaders/DefaultVS.hlsl";
 

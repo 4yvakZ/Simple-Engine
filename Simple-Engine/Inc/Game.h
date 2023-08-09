@@ -5,7 +5,9 @@ namespace SimpleEngine
 	class Component;
 	class RenderComponent;
 	class RenderSystem;
+	class InputDevice;
 	class GameObject;
+	class CameraComponent;
 
 	class Game
 	{
@@ -26,6 +28,28 @@ namespace SimpleEngine
 
 		void exit();
 
+		auto getHWnd() const
+		{
+			return hWnd;
+		}
+
+		auto getActiveCameraComponent() const
+		{
+			return mActiveCameraComp;
+		}
+
+		void setActiveCameraComp(std::shared_ptr<CameraComponent> comp) {
+			mActiveCameraComp = comp;
+		}
+
+		int clientWidth() {
+			return mClientWidth;
+		}
+
+		int clientHeight() {
+			return mClientHeight;
+		}
+
 	protected:
 
 		virtual void init();
@@ -34,7 +58,7 @@ namespace SimpleEngine
 
 		virtual void updateInternal();
 
-		virtual void update();
+		virtual void update(float deltaTime);
 
 		virtual void draw();
 
@@ -54,17 +78,22 @@ namespace SimpleEngine
 
 		HWND hWnd = nullptr;
 
-		bool isExitRequested = false;
+		bool mIsExitRequested = false;
 
 		std::chrono::time_point<std::chrono::steady_clock> prevTime;
 		float totalTime;
 		float deltaTime;
 
-		std::unique_ptr<GameObject> RootObject;
+		//std::unique_ptr<GameObject> RootObject;
 
-		static std::shared_ptr<RenderSystem> mRenderSystem;
+		std::weak_ptr<CameraComponent> mActiveCameraComp;
 
-		static std::vector<std::weak_ptr<GameObject>> mGameObjects;
+		static std::shared_ptr<RenderSystem> sRenderSystem;
+
+		static std::shared_ptr<InputDevice> sInputDevice;
+
+		static std::vector<std::weak_ptr<GameObject>> sGameObjects;
+
 	public:
 		template<class T, class...Ts, class = std::enable_if_t<
 			std::is_base_of_v<
@@ -83,7 +112,12 @@ namespace SimpleEngine
 
 		static std::shared_ptr<SimpleEngine::RenderSystem> getRenderSystem()
 		{
-			return mRenderSystem;
+			return sRenderSystem;
+		}
+
+		static std::shared_ptr<SimpleEngine::InputDevice> getInputDevice()
+		{
+			return sInputDevice;
 		}
 	};
 	
@@ -103,7 +137,7 @@ namespace SimpleEngine
 	{
 		assert(("Game instance have not been created", mInstance));
 		auto gameObject = std::make_shared<T>(std::forward<Ts>(args)...);
-		mGameObjects.emplace_back(gameObject);
+		sGameObjects.emplace_back(gameObject);
 		return gameObject;
 	}
 }

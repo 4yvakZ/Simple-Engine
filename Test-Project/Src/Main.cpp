@@ -4,9 +4,10 @@
 
 #include "MyGameObject.h"
 #include "Transform.h"
+#include "Player.h"
 
 using namespace SimpleEngine;
-
+using namespace DirectX::SimpleMath;
 
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -28,6 +29,10 @@ int main() {
 	auto game = Game::createGameInstance<Game>();
 
 	auto myGameObject = Game::createGameObject<MyGameObject>();
+	auto player = Game::createGameObject<Player>();
+	Transform transform;
+	transform.setPosition(Vector3(0, 0, 5));
+	player->setTransform(transform);
 
 	game->run();
 }

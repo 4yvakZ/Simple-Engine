@@ -3,13 +3,38 @@
 
 using namespace DirectX::SimpleMath;
 
+SimpleEngine::Transform::Transform(DirectX::SimpleMath::Vector3 position, DirectX::SimpleMath::Quaternion rotation, DirectX::SimpleMath::Vector3 scale) :
+	mPosition(position),
+	mRotation(rotation),
+	mScale(scale),
+	mWorld(),
+	mInvWorld()
+{
+}
+
+SimpleEngine::Transform::Transform(DirectX::SimpleMath::Matrix world)
+{
+	Matrix w = world;
+	Vector3 pos, scale;
+	Quaternion rot;
+	if (w.Decompose(scale, rot, pos))
+	{
+		mWorld = world;
+		mInvWorld = world.Invert();
+		mScale = scale;
+		mRotation = rot;
+		mPosition = pos;
+		return;
+	}
+	// TODO Exception
+}
+
 SimpleEngine::Transform::Transform(const Transform& other)
 {
-	std::unique_lock<std::mutex> myLock(mMutex), otherLock(other.mMutex);
-	lock(myLock, otherLock);
 	mPosition = other.mPosition;
 	mScale = other.mScale;
 	mRotation = other.mRotation; 
+
 	mIsWorldDirty = other.mIsWorldDirty;
 	mWorld = other.mWorld;
 	mInvWorld = other.mInvWorld;
@@ -21,25 +46,14 @@ SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform other)
 	return *this;
 }
 
-SimpleEngine::Transform::Transform(Transform&& other)
+SimpleEngine::Transform::Transform(Transform&& other) noexcept
 {
-	mPosition = std::move(other.mPosition);
-	mScale = std::move(other.mScale);
-	mRotation = std::move(other.mRotation);
-	mIsWorldDirty = std::move(other.mIsWorldDirty);
-	mWorld = std::move(other.mWorld);
-	mInvWorld = std::move(other.mInvWorld);
+	move(std::move(other));
 }
 
-SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform&& other)
+SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform&& other) noexcept
 {
-	std::lock_guard<std::mutex> guard(mMutex);
-	mPosition = std::move(other.mPosition);
-	mScale = std::move(other.mScale);
-	mRotation = std::move(other.mRotation);
-	mIsWorldDirty = std::move(other.mIsWorldDirty);
-	mWorld = std::move(other.mWorld);
-	mInvWorld = std::move(other.mInvWorld);
+	move(std::move(other));
 	return *this;
 }
 
@@ -50,7 +64,6 @@ DirectX::SimpleMath::Vector3 SimpleEngine::Transform::getPosition() const
 
 void SimpleEngine::Transform::setPosition(const DirectX::SimpleMath::Vector3& position)
 {
-	std::lock_guard<std::mutex> guard(mMutex);
 	mIsWorldDirty = true;
 	mPosition = position;
 }
@@ -62,7 +75,6 @@ DirectX::SimpleMath::Quaternion SimpleEngine::Transform::getRotation() const
 
 void SimpleEngine::Transform::setRotation(const DirectX::SimpleMath::Quaternion& rotation)
 {
-	std::lock_guard<std::mutex> guard(mMutex);
 	mIsWorldDirty = true;
 	mRotation = rotation;
 }
@@ -74,7 +86,6 @@ DirectX::SimpleMath::Vector3 SimpleEngine::Transform::getScale() const
 
 void SimpleEngine::Transform::setScale(const DirectX::SimpleMath::Vector3& scale)
 {
-	std::lock_guard<std::mutex> guard(mMutex);
 	mIsWorldDirty = true;
 	mScale = scale;
 }
@@ -92,7 +103,6 @@ bool SimpleEngine::Transform::setWorld(const DirectX::SimpleMath::Matrix& world)
 	Quaternion rot;
 	if (w.Decompose(scale, rot, pos)) 
 	{
-		std::lock_guard<std::mutex> guard(mMutex);
 		mIsWorldDirty = false;
 		mWorld = world;
 		mInvWorld = world.Invert();
@@ -110,9 +120,9 @@ DirectX::SimpleMath::Matrix SimpleEngine::Transform::getInvWorld() const
 	return mInvWorld;
 }
 
-void SimpleEngine::Transform::swap(Transform& other)
+
+inline void SimpleEngine::Transform::swap(Transform& other)
 {
-	std::lock_guard<std::mutex> guard(mMutex);
 	std::swap(mPosition, other.mPosition);
 	std::swap(mScale, other.mScale);
 	std::swap(mRotation, other.mRotation);
@@ -122,9 +132,19 @@ void SimpleEngine::Transform::swap(Transform& other)
 	std::swap(mInvWorld, other.mInvWorld);
 }
 
+inline void SimpleEngine::Transform::move(Transform&& other)
+{
+	mPosition = std::move(other.mPosition);
+	mScale = std::move(other.mScale);
+	mRotation = std::move(other.mRotation);
+
+	mIsWorldDirty = std::move(other.mIsWorldDirty);
+	mWorld = std::move(other.mWorld);
+	mInvWorld = std::move(other.mInvWorld);
+}
+
 inline void SimpleEngine::Transform::checkDirtyWorld() const
 {
-	std::lock_guard<std::mutex> guard(mMutex);
 	if (mIsWorldDirty)
 	{
 		mIsWorldDirty = false;
@@ -133,3 +153,5 @@ inline void SimpleEngine::Transform::checkDirtyWorld() const
 		mInvWorld = mWorld.Invert();
 	}
 }
+
+

@@ -24,6 +24,9 @@
     <ClCompile Include="Src\MyGameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -32,7 +35,10 @@
     <ClInclude Include="Src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\MyGameObject.h">
+    <ClInclude Include="Inc\MyGameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Inc\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

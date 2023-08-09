@@ -19,8 +19,11 @@
 #include <string>
 
 #include <iostream>
-#include <cassert>
 #include <chrono>
 #include <mutex>
 
 #include "SimpleMath.h"
+
+#if defined(DEBUG) || defined(_DEBUG)
+#include <cassert>
+#endif

@@ -18,11 +18,11 @@ void SimpleEngine::SpriteComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 	UINT strides[] = { 48 };
 	UINT offsets[] = { 0 };
 
-	mMaterial->bind(context);
+	getMaterial()->bind(context);
 
 	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	context->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), strides, offsets);
+	context->IASetIndexBuffer(getIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, getVertexBuffer().GetAddressOf(), strides, offsets);
 
 	/*context->VSSetConstantBuffers(0, 1, &constBuffer);
 	context->PSSetConstantBuffers(0, 1, &constBuffer);*/

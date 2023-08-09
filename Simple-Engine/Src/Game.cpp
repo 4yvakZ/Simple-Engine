@@ -2,17 +2,22 @@
 #include "Game.h"
 #include "RenderSystem.h"
 #include "GameObject.h"
+#include "InputDevice.h"
+#include "CameraComponent.h"
+#include "Utils.h"
 
 using namespace SimpleEngine;
+using namespace DirectX::SimpleMath;
 
 #if defined(DEBUG) || defined(_DEBUG)
 bool Game::isCreating = false;
 #endif // defined(DEBUG) || defined(_DEBUG)
 
 std::shared_ptr<Game> Game::mInstance = nullptr;
-std::shared_ptr<RenderSystem> Game::mRenderSystem = nullptr;
+std::shared_ptr<RenderSystem> Game::sRenderSystem = nullptr;
+std::shared_ptr<InputDevice> Game::sInputDevice = nullptr;
 
-std::vector<std::weak_ptr<GameObject>> Game::mGameObjects = std::vector<std::weak_ptr<GameObject>>();
+std::vector<std::weak_ptr<GameObject>> Game::sGameObjects = std::vector<std::weak_ptr<GameObject>>();
 
 LRESULT MainWndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 	return SimpleEngine::Game::getInstance()->MsgProc(hwnd, umessage, wparam, lparam);
@@ -45,34 +50,34 @@ LRESULT CALLBACK SimpleEngine::Game::MsgProc(HWND hwnd, UINT umessage, WPARAM wp
 
 		if (raw->header.dwType == RIM_TYPEKEYBOARD)
 		{
-			printf(" Kbd: make=%04i Flags:%04i Reserved:%04i ExtraInformation:%08i, msg=%04i VK=%i \n",
-				raw->data.keyboard.MakeCode,
-				raw->data.keyboard.Flags,
-				raw->data.keyboard.Reserved,
-				raw->data.keyboard.ExtraInformation,
-				raw->data.keyboard.Message,
-				raw->data.keyboard.VKey);
-
-			//inputDevice->OnKeyDown({
+			//printf(" Kbd: make=%04i Flags:%04i Reserved:%04i ExtraInformation:%08i, msg=%04i VK=%i \n",
 			//	raw->data.keyboard.MakeCode,
 			//	raw->data.keyboard.Flags,
-			//	raw->data.keyboard.VKey,
-			//	raw->data.keyboard.Message
-			//	});
+			//	raw->data.keyboard.Reserved,
+			//	raw->data.keyboard.ExtraInformation,
+			//	raw->data.keyboard.Message,
+			//	raw->data.keyboard.VKey);
+
+			sInputDevice->OnKeyDown({
+				raw->data.keyboard.MakeCode,
+				raw->data.keyboard.Flags,
+				raw->data.keyboard.VKey,
+				raw->data.keyboard.Message
+				});
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 
-			//inputDevice->OnMouseMove({
-			//	raw->data.mouse.usFlags,
-			//	raw->data.mouse.usButtonFlags,
-			//	static_cast<int>(raw->data.mouse.ulExtraInformation),
-			//	static_cast<int>(raw->data.mouse.ulRawButtons),
-			//	static_cast<short>(raw->data.mouse.usButtonData),
-			//	raw->data.mouse.lLastX,
-			//	raw->data.mouse.lLastY
-			//	});
+			sInputDevice->OnMouseMove({
+				raw->data.mouse.usFlags,
+				raw->data.mouse.usButtonFlags,
+				static_cast<int>(raw->data.mouse.ulExtraInformation),
+				static_cast<int>(raw->data.mouse.ulRawButtons),
+				static_cast<short>(raw->data.mouse.usButtonData),
+				raw->data.mouse.lLastX,
+				raw->data.mouse.lLastY
+				});
 		}
 
 		delete[] lpb;
@@ -101,10 +106,10 @@ SimpleEngine::Game::Game(int clientWidth, int clientHeight)
 
 void SimpleEngine::Game::init()
 {
-	for (auto it = mGameObjects.begin(); it < mGameObjects.end(); it++)
+	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
 	{
 		auto gameObject = it->lock();
-		if (gameObject) 
+		if (gameObject)
 		{
 			gameObject->init();
 		}
@@ -115,24 +120,43 @@ void SimpleEngine::Game::prepareResources()
 {
 	createWindow();
 
-	mRenderSystem = std::make_shared<RenderSystem>(hWnd, mClientWidth, mClientHeight);
+	sRenderSystem = std::make_shared<RenderSystem>(hWnd, mClientWidth, mClientHeight);
+
+	sInputDevice = std::make_shared<InputDevice>();
 }
 
-void SimpleEngine::Game::update()
+void SimpleEngine::Game::update(float deltaTime)
 {
+	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
+	{
+		auto gameObject = it->lock();
+		if (gameObject)
+		{
+			gameObject->update(deltaTime);
+		}
+	}
 }
 
 void SimpleEngine::Game::draw()
 {
-	mRenderSystem->prepareFrame();
+	sRenderSystem->prepareFrame();
 
-	mRenderSystem->draw();
+	sRenderSystem->draw();
 
-	mRenderSystem->endFrame();
+	sRenderSystem->endFrame();
 }
 
 void SimpleEngine::Game::updateInternal()
 {
+	mIsExitRequested = sInputDevice->IsKeyDown(Keys::Escape);
+
+	if (auto camera = mActiveCameraComp.lock()) {
+		FrameConstBufferData frameConstBufferData = {};
+		frameConstBufferData.mCameraPos = toVector4(camera->getWorldTransform().getPosition(), 1);
+		frameConstBufferData.mViewProjection = camera->getViewProjection();
+
+		sRenderSystem->update(frameConstBufferData);
+	} 
 }
 
 void SimpleEngine::Game::destroyResources()
@@ -194,7 +218,7 @@ void SimpleEngine::Game::run()
 
 	MSG msg;
 
-	while (!isExitRequested)
+	while (!mIsExitRequested)
 	{
 		// Handle the windows messages.
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -205,7 +229,7 @@ void SimpleEngine::Game::run()
 			// If windows signals to end the application then exit out.
 			if (msg.message == WM_QUIT)
 			{
-				isExitRequested = true;
+				mIsExitRequested = true;
 			}
 		}
 
@@ -233,7 +257,7 @@ void SimpleEngine::Game::run()
 
 		updateInternal();
 
-		update();
+		update(deltaTime);
 
 		draw();
 

@@ -4,7 +4,7 @@ struct aiScene;
 struct aiNode;
 
 namespace SimpleEngine {
-	class Mesh;
+	struct Mesh;
 
 	class AssetManager
 	{

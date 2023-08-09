@@ -179,6 +179,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Player.cpp" />
     <ClCompile Include="Src\MyGameObject.cpp" />
     <ClCompile Include="Src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -197,7 +198,8 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\MyGameObject.h" />
+    <ClInclude Include="Inc\Player.h" />
+    <ClInclude Include="Inc\MyGameObject.h" />
     <ClInclude Include="Src\pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

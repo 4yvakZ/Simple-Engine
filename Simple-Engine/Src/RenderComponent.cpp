@@ -56,6 +56,13 @@ void SimpleEngine::RenderComponent::update()
 {
 }
 
+void SimpleEngine::RenderComponent::construct()
+{
+	Component::construct();
+
+	Game::getRenderSystem()->addRenderComponent(std::dynamic_pointer_cast<RenderComponent>(shared_from_this()));
+}
+
 void SimpleEngine::RenderComponent::initVertexandIndexBuffer(const std::vector<VertexData>& vertecis, const std::vector<uint32_t>& indecis)
 {
 	auto device = Game::getRenderSystem()->getDevice();

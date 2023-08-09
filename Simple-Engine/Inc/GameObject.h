@@ -8,8 +8,9 @@ namespace SimpleEngine
 {
 	class Component;
 	class RenderComponent;
+	class CameraComponent;
 
-	class GameObject
+	class GameObject : public std::enable_shared_from_this<GameObject>
 	{
 	public:
 		explicit GameObject(std::shared_ptr<GameObject> parent = nullptr) :
@@ -29,7 +30,7 @@ namespace SimpleEngine
 
 		auto parent() 
 		{
-			return mParent;
+			return mParent.lock();
 		}
 
 		void setParent(std::shared_ptr<GameObject> parent) 
@@ -42,12 +43,15 @@ namespace SimpleEngine
 			mTransform = transform;
 		}
 
-		const Transform& getTransform() {
+		const Transform& getTransform() const
+		{
 			return mTransform;
 		}
 
+		Transform getWorldTransform() const;
+
 	private:
-		std::shared_ptr<GameObject> mParent;
+		std::weak_ptr<GameObject> mParent;
 		std::vector<std::shared_ptr<Component>> mComponents;
 		Transform mTransform;
 
@@ -62,11 +66,10 @@ namespace SimpleEngine
 	std::shared_ptr<T> GameObject::createComponent(Ts && ...args)
 	{
 		auto component = std::make_shared<T>(std::forward<Ts>(args)...);
+
 		mComponents.emplace_back(component);
-		if (auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component)) 
-		{
-			Game::getRenderSystem()->addRenderComponent(renderComponent);
-		}
+		component->setOwner(shared_from_this());
+		component->construct();
 		return component;
 	}
 }

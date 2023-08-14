@@ -110,7 +110,7 @@
     <ClInclude Include="Inc\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Delegates.h">
+    <ClInclude Include="Inc\Delegates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Inc\InputDevice.h">

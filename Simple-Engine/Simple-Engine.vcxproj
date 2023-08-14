@@ -225,7 +225,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     <ClInclude Include="Inc\RenderComponent.h" />
     <ClInclude Include="Inc\SceneComponent.h" />
     <ClInclude Include="Inc\Utils.h" />
-    <ClInclude Include="Src\Delegates.h" />
+    <ClInclude Include="Inc\Delegates.h" />
     <ClInclude Include="Inc\InputDevice.h" />
     <ClInclude Include="Inc\Keys.h" />
     <ClInclude Include="Src\pch.h" />

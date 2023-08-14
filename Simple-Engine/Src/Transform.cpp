@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Transform.h"
+#include "Utils.h"
 
 using namespace DirectX::SimpleMath;
 
@@ -10,23 +11,6 @@ SimpleEngine::Transform::Transform(DirectX::SimpleMath::Vector3 position, Direct
 	mWorld(),
 	mInvWorld()
 {
-}
-
-SimpleEngine::Transform::Transform(DirectX::SimpleMath::Matrix world)
-{
-	Matrix w = world;
-	Vector3 pos, scale;
-	Quaternion rot;
-	if (w.Decompose(scale, rot, pos))
-	{
-		mWorld = world;
-		mInvWorld = world.Invert();
-		mScale = scale;
-		mRotation = rot;
-		mPosition = pos;
-		return;
-	}
-	// TODO Exception
 }
 
 SimpleEngine::Transform::Transform(const Transform& other)
@@ -49,12 +33,6 @@ SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform other)
 SimpleEngine::Transform::Transform(Transform&& other) noexcept
 {
 	move(std::move(other));
-}
-
-SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform&& other) noexcept
-{
-	move(std::move(other));
-	return *this;
 }
 
 DirectX::SimpleMath::Vector3 SimpleEngine::Transform::getPosition() const
@@ -94,24 +72,6 @@ DirectX::SimpleMath::Matrix SimpleEngine::Transform::getWorld() const
 {
 	checkDirtyWorld();
 	return mWorld;
-}
-
-bool SimpleEngine::Transform::setWorld(const DirectX::SimpleMath::Matrix& world)
-{
-	Matrix w = world;
-	Vector3 pos, scale;
-	Quaternion rot;
-	if (w.Decompose(scale, rot, pos)) 
-	{
-		mIsWorldDirty = false;
-		mWorld = world;
-		mInvWorld = world.Invert();
-		mScale = scale;
-		mRotation = rot;
-		mPosition = pos;
-		return true;
-	}
-	return false;
 }
 
 DirectX::SimpleMath::Matrix SimpleEngine::Transform::getInvWorld() const
@@ -154,4 +114,28 @@ inline void SimpleEngine::Transform::checkDirtyWorld() const
 	}
 }
 
+namespace SimpleEngine {
 
+	Transform operator*(const Transform& rhs, const Transform& lhs)
+	{
+		return Transform(rhs.getPosition() + lhs.getPosition(), rhs.getRotation()*lhs.getRotation(), rhs.getScale() * lhs.getScale());
+	}
+
+	Transform operator/(const Transform& rhs, const Transform& lhs)
+	{
+		return Transform(rhs.getPosition() - lhs.getPosition(), rhs.getRotation() / lhs.getRotation(), rhs.getScale() / lhs.getScale());
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Transform& rhs)
+	{
+		auto rot = rhs.getRotation().ToEuler();
+		auto pos = rhs.getPosition();
+		auto scale = rhs.getScale();
+		std::cout << "Transform {\n" <<
+			"\tPosition " << pos.x << ", " << pos.y << ", " << pos.z << "\n" <<
+			"\tRotation " << rot.x << ", " << rot.y << ", " << rot.z << "\n" <<
+			"\tScale " << scale.x << ", " << scale.y << ", " << scale.z << "\n" <<
+			"}";
+		return os;
+	}
+}

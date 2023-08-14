@@ -28,27 +28,16 @@ namespace SimpleEngine
 		virtual void update(float deltaTime);
 		virtual void init();
 
-		auto parent() 
-		{
-			return mParent.lock();
-		}
+		std::shared_ptr<GameObject> getParent();
+		
+		void setParent(std::shared_ptr<GameObject> parent);
 
-		void setParent(std::shared_ptr<GameObject> parent) 
-		{
-			mParent = parent;
-		}
+		void setTransform(const Transform& transform);
 
-		void setTransform(const Transform& transform)
-		{
-			mTransform = transform;
-		}
-
-		const Transform& getTransform() const
-		{
-			return mTransform;
-		}
+		const Transform& getTransform() const;
 
 		Transform getWorldTransform() const;
+		void setWorldTransform(const Transform& transform);
 
 	private:
 		std::weak_ptr<GameObject> mParent;

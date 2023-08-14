@@ -21,27 +21,24 @@ namespace SimpleEngine
 			Orthographic
 		};
 
-		auto getViewProjection() const {
-			return mView * mProjection;
-		}
 
-		auto getView() const {
-			return mView;
-		}
 
-		auto getProjection() const {
-			return mProjection;
-		}
+		DirectX::SimpleMath::Matrix getView() const;
+		DirectX::SimpleMath::Matrix getProjection() const;
+		DirectX::SimpleMath::Matrix getViewProjection() const;
 
+		DirectX::SimpleMath::Vector3 getForward();
+		DirectX::SimpleMath::Vector3 getRight();
+		DirectX::SimpleMath::Vector3 getUp();
+
+		float getFOVAngle() const;
+		void setFOVAngle(float fovAngle);
 
 	private:
 		ProjectionType mProjectionType = ProjectionType::Perspective;
 
 		DirectX::SimpleMath::Matrix mView;
 		DirectX::SimpleMath::Matrix mProjection;
-
-		DirectX::SimpleMath::Vector3 mTarget;
-		DirectX::SimpleMath::Vector3 mUp;
 
 		float mFarPlane = 100.0f;
 		float mNearPlane = 0.1f;

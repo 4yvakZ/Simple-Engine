@@ -206,6 +206,21 @@ void SimpleEngine::Game::createWindow()
 	ShowCursor(true);
 }
 
+std::shared_ptr<Game> SimpleEngine::Game::getInstance()
+{
+	return mInstance;
+}
+
+std::shared_ptr<SimpleEngine::RenderSystem> SimpleEngine::Game::getRenderSystem()
+{
+	return sRenderSystem;
+}
+
+std::shared_ptr<SimpleEngine::InputDevice> SimpleEngine::Game::getInputDevice()
+{
+	return sInputDevice;
+}
+
 void SimpleEngine::Game::run()
 {
 	prepareResources();
@@ -268,6 +283,28 @@ void SimpleEngine::Game::run()
 
 void SimpleEngine::Game::exit()
 {
+}
+
+HWND SimpleEngine::Game::getHWnd() const
+{
+	return hWnd;
+}
+
+std::weak_ptr<CameraComponent> SimpleEngine::Game::getActiveCameraComponent() const
+{
+	return mActiveCameraComp;
+}
+
+void SimpleEngine::Game::setActiveCameraComp(std::shared_ptr<CameraComponent> comp) {
+	mActiveCameraComp = comp;
+}
+
+int SimpleEngine::Game::clientWidth() {
+	return mClientWidth;
+}
+
+int SimpleEngine::Game::clientHeight() {
+	return mClientHeight;
 }
 
 

@@ -28,27 +28,14 @@ namespace SimpleEngine
 
 		void exit();
 
-		auto getHWnd() const
-		{
-			return hWnd;
-		}
 
-		auto getActiveCameraComponent() const
-		{
-			return mActiveCameraComp;
-		}
+		HWND getHWnd() const;
 
-		void setActiveCameraComp(std::shared_ptr<CameraComponent> comp) {
-			mActiveCameraComp = comp;
-		}
+		std::weak_ptr<CameraComponent> getActiveCameraComponent() const;
+		void setActiveCameraComp(std::shared_ptr<CameraComponent> comp);
 
-		int clientWidth() {
-			return mClientWidth;
-		}
-
-		int clientHeight() {
-			return mClientHeight;
-		}
+		int clientWidth();
+		int clientHeight();
 
 	protected:
 
@@ -105,24 +92,13 @@ namespace SimpleEngine
 			std::decay_t<GameObject>, T>>>
 			static std::shared_ptr<T> createGameObject(Ts&&...args);
 
-		static std::shared_ptr<Game> getInstance()
-		{
-			return mInstance;
-		}
-
-		static std::shared_ptr<SimpleEngine::RenderSystem> getRenderSystem()
-		{
-			return sRenderSystem;
-		}
-
-		static std::shared_ptr<SimpleEngine::InputDevice> getInputDevice()
-		{
-			return sInputDevice;
-		}
+		static std::shared_ptr<Game> getInstance();
+		static std::shared_ptr<SimpleEngine::RenderSystem> getRenderSystem();
+		static std::shared_ptr<SimpleEngine::InputDevice> getInputDevice();
 	};
 	
 	template<class T, class ...Ts, class>
-	std::shared_ptr<Game> Game::createGameInstance(Ts && ...Args)
+	std::shared_ptr<Game> Game::createGameInstance(Ts&& ...Args)
 	{
 #if defined(DEBUG) || defined(_DEBUG)
 		isCreating = true;

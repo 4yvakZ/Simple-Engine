@@ -32,7 +32,7 @@ namespace SimpleEngine {
 		std::string mVSFileName;
 
 		// Fong lighting
-		std::string mColorTextureName;
+		std::string mAlbedoTextureName;
 		DirectX::SimpleMath::Color mColor;
 
 		DirectX::SimpleMath::Vector4 mAmbient;

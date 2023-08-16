@@ -13,18 +13,18 @@ namespace SimpleEngine {
 	public:
 		Material();
 
-		void init(Microsoft::WRL::ComPtr<ID3D11Device> device);
+		void Init(Microsoft::WRL::ComPtr<ID3D11Device> device);
 
-		void bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
 	public:
 		static const std::string kDefaultPSName;
 		static const std::string kDefaultVSName;
 
-		void setPSFileName(const std::string& PSFileName);
+		void SetPSFileName(const std::string& PSFileName);
 		std::string PSFileName() const;
 
-		void setVSFileName(const std::string& VSFileName);
+		void SetVSFileName(const std::string& VSFileName);
 		std::string VSFileName() const;
 
 	private:

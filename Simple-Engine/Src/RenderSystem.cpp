@@ -8,25 +8,25 @@ using Microsoft::WRL::ComPtr;
 constexpr Color backgroundColor(0.2f, 0.2f, 0.2f);
 //constexpr Color backgroundColor(0.f, 0.f, 0.f);
 
-SimpleEngine::RenderSystem::RenderSystem(HWND hWnd, int clientWidth, int clientHeight)
+SimpleEngine::RenderSystem::RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight)
 {
-	init(hWnd, clientWidth, clientHeight);
+	Init(hWnd, ClientWidth, ClientHeight);
 }
 
 SimpleEngine::RenderSystem::~RenderSystem()
 {
 }
 
-void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeight)
+void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeight)
 {
-	mViewport = Viewport(0.0f, 0.0f, static_cast<float>(clientWidth), static_cast<float>(clientHeight));
+	mViewport = Viewport(0.0f, 0.0f, static_cast<float>(ClientWidth), static_cast<float>(ClientHeight));
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
 	DXGI_SWAP_CHAIN_DESC swapDesc = {};
 	swapDesc.BufferCount = 2;
-	swapDesc.BufferDesc.Width = clientWidth;
-	swapDesc.BufferDesc.Height = clientHeight;
+	swapDesc.BufferDesc.Width = ClientWidth;
+	swapDesc.BufferDesc.Height = ClientHeight;
 	swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -89,10 +89,10 @@ void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeig
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
-	initFrameConstBuffer();
+	InitFrameConstBuffer();
 }
 
-void SimpleEngine::RenderSystem::prepareFrame()
+void SimpleEngine::RenderSystem::PrepareFrame()
 {
 	mContext->ClearRenderTargetView(mRenderTarget.Get(), backgroundColor);
 	mContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -101,7 +101,7 @@ void SimpleEngine::RenderSystem::prepareFrame()
 	mContext->RSSetViewports(1, mViewport.Get11());
 }
 
-void SimpleEngine::RenderSystem::draw()
+void SimpleEngine::RenderSystem::Draw()
 {
 	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
 
@@ -111,7 +111,7 @@ void SimpleEngine::RenderSystem::draw()
 
 		if (renderer) 
 		{
-			renderer->draw(mContext);
+			renderer->Draw(mContext);
 			it++;
 		} 
 		else
@@ -121,17 +121,17 @@ void SimpleEngine::RenderSystem::draw()
 	}
 }
 
-void SimpleEngine::RenderSystem::endFrame()
+void SimpleEngine::RenderSystem::EndFrame()
 {
 	mContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 	mSwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
 
-void SimpleEngine::RenderSystem::update(const FrameConstBufferData& frameBufferData)
+void SimpleEngine::RenderSystem::Update(const FrameConstBufferData& frameBufferData)
 {
 	mFrameConstBufferData = frameBufferData;
-	updateFrameConstBuffer();
+	UpdateFrameConstBuffer();
 }
 
 Microsoft::WRL::ComPtr<ID3D11Device> SimpleEngine::RenderSystem::getDevice() {
@@ -143,12 +143,12 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> SimpleEngine::RenderSystem::getConte
 	return mContext;
 }
 
-void SimpleEngine::RenderSystem::addRenderComponent(std::shared_ptr<RenderComponent> renderComponent)
+void SimpleEngine::RenderSystem::AddRenderComponent(std::shared_ptr<RenderComponent> renderComponent)
 {
 	mRenderComponents.emplace_back(renderComponent);
 }
 
-void SimpleEngine::RenderSystem::initFrameConstBuffer()
+void SimpleEngine::RenderSystem::InitFrameConstBuffer()
 {
 	D3D11_BUFFER_DESC constBufDesc = {};
 	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -166,7 +166,7 @@ void SimpleEngine::RenderSystem::initFrameConstBuffer()
 	mDevice->CreateBuffer(&constBufDesc, &constData, mFrameConstBuffer.GetAddressOf());
 }
 
-void SimpleEngine::RenderSystem::updateFrameConstBuffer()
+void SimpleEngine::RenderSystem::UpdateFrameConstBuffer()
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 

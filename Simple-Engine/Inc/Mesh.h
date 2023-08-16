@@ -8,15 +8,9 @@ namespace SimpleEngine {
 		Mesh() = default;
 		friend class AssetManager;
 
-		const auto& getVertecis() const
-		{
-			return mVertecis;
-		}
+		const std::vector<SimpleEngine::VertexData>& GetVertecis() const;
 
-		const auto& getIndecis() const
-		{
-			return mIndecis;
-		}
+		const std::vector<uint32_t>& GetIndecis() const;
 	private:
 		std::vector<SimpleEngine::VertexData> mVertecis;
 		std::vector<uint32_t> mIndecis;

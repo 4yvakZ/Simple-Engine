@@ -20,7 +20,7 @@ std::shared_ptr<InputDevice> Game::sInputDevice = nullptr;
 std::vector<std::weak_ptr<GameObject>> Game::sGameObjects = std::vector<std::weak_ptr<GameObject>>();
 
 LRESULT MainWndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
-	return SimpleEngine::Game::getInstance()->MsgProc(hwnd, umessage, wparam, lparam);
+	return SimpleEngine::Game::GetInstance()->MsgProc(hwnd, umessage, wparam, lparam);
 }
 
 LRESULT CALLBACK SimpleEngine::Game::MsgProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
@@ -31,7 +31,7 @@ LRESULT CALLBACK SimpleEngine::Game::MsgProc(HWND hwnd, UINT umessage, WPARAM wp
 	case WM_CLOSE:
 	{
 		PostQuitMessage(0);
-		exit();
+		Exit();
 		return 0;
 	}
 	case WM_INPUT:
@@ -96,74 +96,74 @@ SimpleEngine::Game::Game():
 
 }
 
-SimpleEngine::Game::Game(int clientWidth, int clientHeight)
-	: mClientWidth(clientWidth), mClientHeight(clientHeight)//, hWnd(nullptr)
+SimpleEngine::Game::Game(int ClientWidth, int ClientHeight)
+	: mClientWidth(ClientWidth), mClientHeight(ClientHeight)//, hWnd(nullptr)
 {
 #if defined(DEBUG) || defined(_DEBUG)
 	assert(("To create game instance use createGameInstance template", isCreating));
 #endif // defined(DEBUG) || defined(_DEBUG)
 }
 
-void SimpleEngine::Game::init()
+void SimpleEngine::Game::Init()
 {
 	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
 	{
 		auto gameObject = it->lock();
 		if (gameObject)
 		{
-			gameObject->init();
+			gameObject->Init();
 		}
 	}
 }
 
-void SimpleEngine::Game::prepareResources()
+void SimpleEngine::Game::PrepareResources()
 {
-	createWindow();
+	CreateAppWindow();
 
 	sRenderSystem = std::make_shared<RenderSystem>(hWnd, mClientWidth, mClientHeight);
 
 	sInputDevice = std::make_shared<InputDevice>();
 }
 
-void SimpleEngine::Game::update(float deltaTime)
+void SimpleEngine::Game::Update(float deltaTime)
 {
 	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
 	{
 		auto gameObject = it->lock();
 		if (gameObject)
 		{
-			gameObject->update(deltaTime);
+			gameObject->Update(deltaTime);
 		}
 	}
 }
 
-void SimpleEngine::Game::draw()
+void SimpleEngine::Game::Draw()
 {
-	sRenderSystem->prepareFrame();
+	sRenderSystem->PrepareFrame();
 
-	sRenderSystem->draw();
+	sRenderSystem->Draw();
 
-	sRenderSystem->endFrame();
+	sRenderSystem->EndFrame();
 }
 
-void SimpleEngine::Game::updateInternal()
+void SimpleEngine::Game::UpdateInternal()
 {
 	mIsExitRequested = sInputDevice->IsKeyDown(Keys::Escape);
 
 	if (auto camera = mActiveCameraComp.lock()) {
 		FrameConstBufferData frameConstBufferData = {};
-		frameConstBufferData.mCameraPos = toVector4(camera->getWorldTransform().getPosition(), 1);
-		frameConstBufferData.mViewProjection = camera->getViewProjection();
+		frameConstBufferData.mCameraPos = ToVector4(camera->GetWorldTransform().GetPosition(), 1);
+		frameConstBufferData.mViewProjection = camera->GetViewProjection();
 
-		sRenderSystem->update(frameConstBufferData);
+		sRenderSystem->Update(frameConstBufferData);
 	} 
 }
 
-void SimpleEngine::Game::destroyResources()
+void SimpleEngine::Game::DestroyResources()
 {
 }
 
-void SimpleEngine::Game::createWindow()
+void SimpleEngine::Game::CreateAppWindow()
 {
 	LPCWSTR applicationName = L"My3DApp";
 	HINSTANCE hInstance = GetModuleHandle(nullptr);
@@ -206,26 +206,26 @@ void SimpleEngine::Game::createWindow()
 	ShowCursor(true);
 }
 
-std::shared_ptr<Game> SimpleEngine::Game::getInstance()
+std::shared_ptr<Game> SimpleEngine::Game::GetInstance()
 {
 	return mInstance;
 }
 
-std::shared_ptr<SimpleEngine::RenderSystem> SimpleEngine::Game::getRenderSystem()
+std::shared_ptr<SimpleEngine::RenderSystem> SimpleEngine::Game::GetRenderSystem()
 {
 	return sRenderSystem;
 }
 
-std::shared_ptr<SimpleEngine::InputDevice> SimpleEngine::Game::getInputDevice()
+std::shared_ptr<SimpleEngine::InputDevice> SimpleEngine::Game::GetInputDevice()
 {
 	return sInputDevice;
 }
 
-void SimpleEngine::Game::run()
+void SimpleEngine::Game::Run()
 {
-	prepareResources();
+	PrepareResources();
 
-	init();
+	Init();
 
 	prevTime = std::chrono::steady_clock::now();
 	totalTime = 0;
@@ -241,7 +241,7 @@ void SimpleEngine::Game::run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
-			// If windows signals to end the application then exit out.
+			// If windows signals to end the application then Exit out.
 			if (msg.message == WM_QUIT)
 			{
 				mIsExitRequested = true;
@@ -270,40 +270,40 @@ void SimpleEngine::Game::run()
 			frameCount = 0;
 		}
 
-		updateInternal();
+		UpdateInternal();
 
-		update(deltaTime);
+		Update(deltaTime);
 
-		draw();
+		Draw();
 
 	}
 
-	destroyResources();
+	DestroyResources();
 }
 
-void SimpleEngine::Game::exit()
+void SimpleEngine::Game::Exit()
 {
 }
 
-HWND SimpleEngine::Game::getHWnd() const
+HWND SimpleEngine::Game::GetHWnd() const
 {
 	return hWnd;
 }
 
-std::weak_ptr<CameraComponent> SimpleEngine::Game::getActiveCameraComponent() const
+std::weak_ptr<CameraComponent> SimpleEngine::Game::GetActiveCameraComponent() const
 {
 	return mActiveCameraComp;
 }
 
-void SimpleEngine::Game::setActiveCameraComp(std::shared_ptr<CameraComponent> comp) {
+void SimpleEngine::Game::SetActiveCameraComp(std::shared_ptr<CameraComponent> comp) {
 	mActiveCameraComp = comp;
 }
 
-int SimpleEngine::Game::clientWidth() {
+int SimpleEngine::Game::ClientWidth() {
 	return mClientWidth;
 }
 
-int SimpleEngine::Game::clientHeight() {
+int SimpleEngine::Game::ClientHeight() {
 	return mClientHeight;
 }
 

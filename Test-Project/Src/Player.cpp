@@ -4,26 +4,26 @@
 
 using namespace SimpleEngine;
 
-void Player::init()
+void Player::Init()
 {
 	using namespace DirectX::SimpleMath;
-	mCameraComponent = createComponent<CameraComponent>();
-	auto camTransform = mCameraComponent->getTransform();
-	camTransform.setPosition(Vector3(0, 0, 0));
-	mCameraComponent->setTransform(camTransform);
-	Game::getInputDevice()->MouseMove.AddRaw(this, &Player::mouseMoveHandler, 10);
-	GameObject::init();
+	mCameraComponent = CreateComponent<CameraComponent>();
+	auto camTransform = mCameraComponent->GetTransform();
+	camTransform.SetPosition(Vector3(0, 0, 0));
+	mCameraComponent->SetTransform(camTransform);
+	Game::GetInputDevice()->MouseMove.AddRaw(this, &Player::mouseMoveHandler, 10);
+	GameObject::Init();
 }
 
-void Player::update(float deltaTime)
+void Player::Update(float deltaTime)
 {
 	using namespace DirectX::SimpleMath;
 	
-	auto cameraForward = mCameraComponent->getForward();
-	auto cameraRight = mCameraComponent->getRight();
-	auto inputDevice = Game::getInputDevice();
-	auto transform = getWorldTransform();
-	auto position = transform.getPosition();
+	auto cameraForward = mCameraComponent->GetForward();
+	auto cameraRight = mCameraComponent->GetRight();
+	auto inputDevice = Game::GetInputDevice();
+	auto transform = GetWorldTransform();
+	auto position = transform.GetPosition();
 
 	if (inputDevice->IsKeyDown(Keys::D))
 	{
@@ -50,31 +50,31 @@ void Player::update(float deltaTime)
 		position -= mMoveSpeed * deltaTime * Vector3::Up;
 	}
 
-	transform.setPosition(position);
-	setWorldTransform(transform);
+	transform.SetPosition(position);
+	SetWorldTransform(transform);
 
-	GameObject::update(deltaTime);
+	GameObject::Update(deltaTime);
 }
 
 void Player::mouseMoveHandler(const SimpleEngine::InputDevice::MouseMoveEventArgs& mouseData, int payload)
 {
 	using namespace DirectX::SimpleMath;
 	
-	auto transform = getWorldTransform();
-	auto rotation = transform.getRotation();
+	auto transform = GetWorldTransform();
+	auto rotation = transform.GetRotation();
 
 	
 
 	auto deltaYaw = -mouseData.Offset.x * mRotationSpeed;
 	auto deltaPitch = -mouseData.Offset.y * mRotationSpeed * 2;
 
-	auto additionalRotation = Quaternion::CreateFromAxisAngle(mCameraComponent->getRight(), deltaPitch) 
+	auto additionalRotation = Quaternion::CreateFromAxisAngle(mCameraComponent->GetRight(), deltaPitch) 
 		* Quaternion::CreateFromAxisAngle(Vector3::Up, deltaYaw);
 
 	rotation *= additionalRotation;
-	transform.setRotation(rotation);
+	transform.SetRotation(rotation);
 
-	setWorldTransform(transform);
+	SetWorldTransform(transform);
 
-	mCameraComponent->setFOVAngle(mCameraComponent->getFOVAngle() + mouseData.WheelDelta * mFOVSpeed);	
+	mCameraComponent->SetFOVAngle(mCameraComponent->GetFOVAngle() + mouseData.WheelDelta * mFOVSpeed);	
 }

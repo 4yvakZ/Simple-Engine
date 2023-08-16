@@ -12,17 +12,17 @@ SimpleEngine::SpriteComponent::SpriteComponent(std::shared_ptr<Material> materia
 {
 }
 
-void SimpleEngine::SpriteComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+void SimpleEngine::SpriteComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	///Setup AI stage
 	UINT strides[] = { sizeof(VertexData) };
 	UINT offsets[] = { 0 };
 
-	getMaterial()->bind(context);
+	GetMaterial()->Bind(context);
 
 	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	context->IASetIndexBuffer(getIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetVertexBuffers(0, 1, getVertexBuffer().GetAddressOf(), strides, offsets);
+	context->IASetIndexBuffer(GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetVertexBuffers(0, 1, GetVertexBuffer().GetAddressOf(), strides, offsets);
 
 	/*context->VSSetConstantBuffers(0, 1, &constBuffer);
 	context->PSSetConstantBuffers(0, 1, &constBuffer);*/
@@ -30,9 +30,9 @@ void SimpleEngine::SpriteComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 	context->DrawIndexed(static_cast<UINT>(mIndecis.size()), 0, 0);
 }
 
-void SimpleEngine::SpriteComponent::init()
+void SimpleEngine::SpriteComponent::Init()
 {
-	RenderComponent::init();
+	RenderComponent::Init();
 
 	mVertecis.reserve(4);
 
@@ -46,6 +46,6 @@ void SimpleEngine::SpriteComponent::init()
 	point.mPos.y = 0.5;
 	mVertecis.push_back(point);
 
-	initVertexBuffer(mVertecis);
-	initIndexBuffer(mIndecis);
+	InitVertexBuffer(mVertecis);
+	InitIndexBuffer(mIndecis);
 }

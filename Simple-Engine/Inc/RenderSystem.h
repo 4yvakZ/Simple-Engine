@@ -9,29 +9,29 @@ namespace SimpleEngine {
 	class RenderSystem
 	{
 	public:
-		explicit RenderSystem(HWND hWnd, int clientWidth, int clientHeight);
+		explicit RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight);
 		virtual ~RenderSystem();
 
-		virtual void init(HWND hWnd, int clientWidth, int clientHeight);
+		virtual void Init(HWND hWnd, int ClientWidth, int ClientHeight);
 
-		virtual void prepareFrame();
+		virtual void PrepareFrame();
 
-		virtual void draw();
+		virtual void Draw();
 
-		virtual void endFrame();
+		virtual void EndFrame();
 
-		virtual void update(const FrameConstBufferData& frameBufferData);
+		virtual void Update(const FrameConstBufferData& frameBufferData);
 
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice();
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> getContext();
 
-		void addRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
+		void AddRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
 
 	private:
 
-		void initFrameConstBuffer();
+		void InitFrameConstBuffer();
 
-		void updateFrameConstBuffer();
+		void UpdateFrameConstBuffer();
 
 	private:
 		

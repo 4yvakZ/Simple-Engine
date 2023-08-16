@@ -11,9 +11,9 @@ namespace SimpleEngine
 		CameraComponent();
 
 		// Inherited via SceneComponent
-		virtual void construct() override;
-		virtual void init() override;
-		virtual void update() override;
+		virtual void Construct() override;
+		virtual void Init() override;
+		virtual void Update() override;
 
 		enum class ProjectionType
 		{
@@ -23,16 +23,16 @@ namespace SimpleEngine
 
 
 
-		DirectX::SimpleMath::Matrix getView() const;
-		DirectX::SimpleMath::Matrix getProjection() const;
-		DirectX::SimpleMath::Matrix getViewProjection() const;
+		DirectX::SimpleMath::Matrix GetView() const;
+		DirectX::SimpleMath::Matrix GetProjection() const;
+		DirectX::SimpleMath::Matrix GetViewProjection() const;
 
-		DirectX::SimpleMath::Vector3 getForward();
-		DirectX::SimpleMath::Vector3 getRight();
-		DirectX::SimpleMath::Vector3 getUp();
+		DirectX::SimpleMath::Vector3 GetForward();
+		DirectX::SimpleMath::Vector3 GetRight();
+		DirectX::SimpleMath::Vector3 GetUp();
 
-		float getFOVAngle() const;
-		void setFOVAngle(float fovAngle);
+		float GetFOVAngle() const;
+		void SetFOVAngle(float fovAngle);
 
 	private:
 		ProjectionType mProjectionType = ProjectionType::Perspective;

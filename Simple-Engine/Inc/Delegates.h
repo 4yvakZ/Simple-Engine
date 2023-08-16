@@ -29,7 +29,7 @@ Delegates::SetAllocationCallbacks(allocFunction, freeFunc);
 	- Lambda's
 	- std::shared_ptr
 - Delegate object is allocated inline if it is under 32 bytes
-- Add payload to delegate during bind-time
+- Add payload to delegate during Bind-time
 - Move operations enable optimization
 
 ## Example Usage ##

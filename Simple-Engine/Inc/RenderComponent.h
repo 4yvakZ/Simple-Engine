@@ -14,26 +14,26 @@ namespace SimpleEngine
 		explicit RenderComponent(std::shared_ptr<Material> material);
 
 		// Inherited via Component
-		virtual void init() override;
+		virtual void Init() override;
 
-		virtual void update() override;
+		virtual void Update() override;
 
-		virtual void draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context) = 0;
+		virtual void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context) = 0;
 
-		virtual void construct() override;
+		virtual void Construct() override;
 
-		std::shared_ptr<Material> getMaterial() const;
-		void setMaterial(std::shared_ptr<Material> material);
+		std::shared_ptr<Material> GetMaterial() const;
+		void SetMaterial(std::shared_ptr<Material> material);
 
 	protected:
-		void initVertexBuffer(const std::vector<VertexData>& vertecis);
-		void initIndexBuffer(const std::vector<uint32_t>& indecis);
-		Microsoft::WRL::ComPtr<ID3D11Buffer> getIndexBuffer() const;
-		Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
+		void InitVertexBuffer(const std::vector<VertexData>& vertecis);
+		void InitIndexBuffer(const std::vector<uint32_t>& indecis);
+		Microsoft::WRL::ComPtr<ID3D11Buffer> GetIndexBuffer() const;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer() const;
 
-		void initObjectConstBuffer();
-		void updateObjectConstBuffer();
-		Microsoft::WRL::ComPtr<ID3D11Buffer> getObjectConstBuffer() const;
+		void InitObjectConstBuffer();
+		void UpdateObjectConstBuffer();
+		Microsoft::WRL::ComPtr<ID3D11Buffer> GetObjectConstBuffer() const;
 	private:
 		std::shared_ptr<Material> mMaterial;
 

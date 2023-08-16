@@ -8,7 +8,7 @@
 
 using namespace DirectX::SimpleMath;
 
-std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::importMeshes(std::string modelFileName)
+std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::ImportMeshes(std::string modelFileName)
 {
 	// Create an instance of the Importer class
 	Assimp::Importer importer;
@@ -33,12 +33,12 @@ std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::imp
 
 	auto meshes = std::vector<std::shared_ptr<Mesh>>();
 
-	searchNode(scene, scene->mRootNode, meshes);
+	SearchNode(scene, scene->mRootNode, meshes);
 
 	return meshes;
 }
 
-void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, std::vector<std::shared_ptr<Mesh>>& meshes)
+void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, std::vector<std::shared_ptr<Mesh>>& meshes)
 {
 	if (node->mNumMeshes > 0)
 	{
@@ -89,6 +89,6 @@ void SimpleEngine::AssetManager::searchNode(const aiScene* scene, aiNode* node, 
 	// continue for all child nodes
 	for (size_t i = 0; i < node->mNumChildren; i++)
 	{
-		searchNode(scene, node->mChildren[i], meshes);
+		SearchNode(scene, node->mChildren[i], meshes);
 	}
 }

@@ -15,7 +15,7 @@ namespace SimpleEngine
 	public:
 		Game();
 
-		explicit Game(int clientWidth, int clientHeight);
+		explicit Game(int ClientWidth, int ClientHeight);
 
 		Game& operator=(const Game&) = delete;
 		Game(const Game&) = delete;
@@ -24,34 +24,34 @@ namespace SimpleEngine
 
 		virtual LRESULT MsgProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 
-		void run();
+		void Run();
 
-		void exit();
+		void Exit();
 
 
-		HWND getHWnd() const;
+		HWND GetHWnd() const;
 
-		std::weak_ptr<CameraComponent> getActiveCameraComponent() const;
-		void setActiveCameraComp(std::shared_ptr<CameraComponent> comp);
+		std::weak_ptr<CameraComponent> GetActiveCameraComponent() const;
+		void SetActiveCameraComp(std::shared_ptr<CameraComponent> comp);
 
-		int clientWidth();
-		int clientHeight();
+		int ClientWidth();
+		int ClientHeight();
 
 	protected:
 
-		virtual void init();
+		virtual void Init();
 
-		virtual void prepareResources();
+		virtual void PrepareResources();
 
-		virtual void updateInternal();
+		virtual void UpdateInternal();
 
-		virtual void update(float deltaTime);
+		virtual void Update(float deltaTime);
 
-		virtual void draw();
+		virtual void Draw();
 
-		virtual void destroyResources();
+		virtual void DestroyResources();
 
-		void createWindow();
+		void CreateAppWindow();
 	private:
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -85,20 +85,20 @@ namespace SimpleEngine
 		template<class T, class...Ts, class = std::enable_if_t<
 			std::is_base_of_v<
 			std::decay_t<Game>, T>>>
-			static std::shared_ptr<Game> createGameInstance(Ts&&... args);
+			static std::shared_ptr<Game> CreateGameInstance(Ts&&... args);
 
 		template<class T, class ...Ts, class = std::enable_if_t<
 			std::is_base_of_v<
 			std::decay_t<GameObject>, T>>>
-			static std::shared_ptr<T> createGameObject(Ts&&...args);
+			static std::shared_ptr<T> CreateGameObject(Ts&&...args);
 
-		static std::shared_ptr<Game> getInstance();
-		static std::shared_ptr<SimpleEngine::RenderSystem> getRenderSystem();
-		static std::shared_ptr<SimpleEngine::InputDevice> getInputDevice();
+		static std::shared_ptr<Game> GetInstance();
+		static std::shared_ptr<SimpleEngine::RenderSystem> GetRenderSystem();
+		static std::shared_ptr<SimpleEngine::InputDevice> GetInputDevice();
 	};
 	
 	template<class T, class ...Ts, class>
-	std::shared_ptr<Game> Game::createGameInstance(Ts&& ...Args)
+	std::shared_ptr<Game> Game::CreateGameInstance(Ts&& ...Args)
 	{
 #if defined(DEBUG) || defined(_DEBUG)
 		isCreating = true;
@@ -109,7 +109,7 @@ namespace SimpleEngine
 	}
 
 	template<class T, class ...Ts, class>
-	std::shared_ptr<T> Game::createGameObject(Ts && ...args)
+	std::shared_ptr<T> Game::CreateGameObject(Ts && ...args)
 	{
 		assert(("Game instance have not been created", mInstance));
 		auto gameObject = std::make_shared<T>(std::forward<Ts>(args)...);

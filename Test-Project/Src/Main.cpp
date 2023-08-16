@@ -27,17 +27,17 @@ int main() {
 #if defined(DEBUG) || defined(_DEBUG)
 	std::cout << get_current_dir() << std::endl;
 #endif
-	auto game = Game::createGameInstance<Game>();
+	auto game = Game::CreateGameInstance<Game>();
 
-	auto myGameObject = Game::createGameObject<MyGameObject>();
-	auto myGameObject1 = Game::createGameObject<MyGameObject>();
+	auto myGameObject = Game::CreateGameObject<MyGameObject>();
+	auto myGameObject1 = Game::CreateGameObject<MyGameObject>();
 
-	auto player = Game::createGameObject<Player>();
+	auto player = Game::CreateGameObject<Player>();
 	Transform transform;
-	transform.setPosition(Vector3(0, 0, 5));
-	player->setTransform(transform);
-	transform.setPosition(Vector3(4, 0, 0));
-	myGameObject1->setTransform(transform);
+	transform.SetPosition(Vector3(0, 0, 5));
+	player->SetTransform(transform);
+	transform.SetPosition(Vector3(4, 0, 0));
+	myGameObject1->SetTransform(transform);
 
-	game->run();
+	game->Run();
 }

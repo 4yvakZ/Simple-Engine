@@ -12,29 +12,29 @@ SimpleEngine::CameraComponent::CameraComponent() :
 {
 }
 
-void SimpleEngine::CameraComponent::construct()
+void SimpleEngine::CameraComponent::Construct()
 {
-	auto game = Game::getInstance();
-	if (!game->getActiveCameraComponent().lock())
+	auto game = Game::GetInstance();
+	if (!game->GetActiveCameraComponent().lock())
 	{
-		game->setActiveCameraComp(std::dynamic_pointer_cast<CameraComponent>(shared_from_this()));
+		game->SetActiveCameraComp(std::dynamic_pointer_cast<CameraComponent>(shared_from_this()));
 	}
 }
 
-void SimpleEngine::CameraComponent::update()
+void SimpleEngine::CameraComponent::Update()
 {
 	
-	auto transform = getWorldTransform();
+	auto transform = GetWorldTransform();
 
-	auto pos = transform.getPosition();
-	auto forward = getForward();
+	auto pos = transform.GetPosition();
+	auto forward = GetForward();
 	auto target = pos + forward;
 
-	mView = Matrix::CreateLookAt(pos, target, getUp());
+	mView = Matrix::CreateLookAt(pos, target, GetUp());
 
-	auto game = Game::getInstance();
-	int width = game->clientWidth();
-	int height = game->clientHeight();
+	auto game = Game::GetInstance();
+	int width = game->ClientWidth();
+	int height = game->ClientHeight();
 
 	switch (mProjectionType)
 	{
@@ -64,34 +64,34 @@ void SimpleEngine::CameraComponent::update()
 	}
 }
 
-DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::getViewProjection() const {
+DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::GetViewProjection() const {
 	return mView * mProjection;
 }
 
-DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::getForward()
+DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::GetForward()
 {
-	auto transform = getWorldTransform();
-	return Vector3::TransformNormal(Vector3::Forward, transform.getWorld());
+	auto transform = GetWorldTransform();
+	return Vector3::TransformNormal(Vector3::Forward, transform.GetWorld());
 }
 
-DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::getRight()
+DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::GetRight()
 {
-	auto transform = getWorldTransform();
-	return Vector3::TransformNormal(Vector3::Right, transform.getWorld());
+	auto transform = GetWorldTransform();
+	return Vector3::TransformNormal(Vector3::Right, transform.GetWorld());
 }
 
-DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::getUp()
+DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::GetUp()
 {
-	auto transform = getWorldTransform();
-	return Vector3::TransformNormal(Vector3::Up, transform.getWorld());
+	auto transform = GetWorldTransform();
+	return Vector3::TransformNormal(Vector3::Up, transform.GetWorld());
 }
 
-float SimpleEngine::CameraComponent::getFOVAngle() const
+float SimpleEngine::CameraComponent::GetFOVAngle() const
 {
 	return mFovAngle;
 }
 
-void SimpleEngine::CameraComponent::setFOVAngle(float fovAngle)
+void SimpleEngine::CameraComponent::SetFOVAngle(float fovAngle)
 {
 	if (fovAngle > DirectX::XM_PI - DirectX::XM_PIDIV4)
 	{
@@ -108,14 +108,14 @@ void SimpleEngine::CameraComponent::setFOVAngle(float fovAngle)
 	mFovAngle = fovAngle;
 }
 
-DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::getView() const {
+DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::GetView() const {
 	return mView;
 }
 
-DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::getProjection() const {
+DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::GetProjection() const {
 	return mProjection;
 }
 
-void SimpleEngine::CameraComponent::init()
+void SimpleEngine::CameraComponent::Init()
 {
 }

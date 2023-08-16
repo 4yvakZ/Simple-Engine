@@ -16,15 +16,15 @@ namespace SimpleEngine
 
 		virtual ~Component() {}
 
-		virtual void init() = 0;
+		virtual void Init() = 0;
 
-		virtual void update() = 0;
+		virtual void Update() = 0;
 
-		virtual void construct();
+		virtual void Construct();
 
-		void setOwner(std::shared_ptr<GameObject> owner);
+		void SetOwner(std::shared_ptr<GameObject> owner);
 
-		std::shared_ptr<GameObject> getOwner() const;
+		std::shared_ptr<GameObject> GetOwner() const;
 
 	private:
 		std::weak_ptr<GameObject> mOwner;

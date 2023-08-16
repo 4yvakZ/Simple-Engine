@@ -10,8 +10,8 @@ namespace SimpleEngine
 	public:
 		SpriteComponent(std::shared_ptr<Material> material);
 		// Inherited via RenderComponent
-		virtual void draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context) override;
-		virtual void init() override;
+		virtual void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context) override;
+		virtual void Init() override;
 
 	private:
 		std::vector<VertexData> mVertecis;

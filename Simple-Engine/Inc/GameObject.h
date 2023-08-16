@@ -25,19 +25,19 @@ namespace SimpleEngine
 
 		virtual ~GameObject() = default;
 
-		virtual void update(float deltaTime);
-		virtual void init();
+		virtual void Update(float deltaTime);
+		virtual void Init();
 
-		std::shared_ptr<GameObject> getParent();
+		std::shared_ptr<GameObject> GetParent();
 		
-		void setParent(std::shared_ptr<GameObject> parent);
+		void SetParent(std::shared_ptr<GameObject> parent);
 
-		void setTransform(const Transform& transform);
+		void SetTransform(const Transform& transform);
 
-		const Transform& getTransform() const;
+		const Transform& GetTransform() const;
 
-		Transform getWorldTransform() const;
-		void setWorldTransform(const Transform& transform);
+		Transform GetWorldTransform() const;
+		void SetWorldTransform(const Transform& transform);
 
 	private:
 		std::weak_ptr<GameObject> mParent;
@@ -48,17 +48,17 @@ namespace SimpleEngine
 		template<class T, class ...Ts, class = std::enable_if_t<
 			std::is_base_of_v<
 			std::decay_t<Component>, T>>>
-			std::shared_ptr<T> createComponent(Ts&&...args);
+			std::shared_ptr<T> CreateComponent(Ts&&...args);
 	};
 
 	template<class T, class ...Ts, class>
-	std::shared_ptr<T> GameObject::createComponent(Ts && ...args)
+	std::shared_ptr<T> GameObject::CreateComponent(Ts && ...args)
 	{
 		auto component = std::make_shared<T>(std::forward<Ts>(args)...);
 
 		mComponents.emplace_back(component);
-		component->setOwner(shared_from_this());
-		component->construct();
+		component->SetOwner(shared_from_this());
+		component->Construct();
 		return component;
 	}
 }

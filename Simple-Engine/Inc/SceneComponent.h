@@ -7,17 +7,17 @@ namespace SimpleEngine
 	class SceneComponent : public Component
 	{
 	public:
-		void setTransform(const Transform& transform)
+		void SetTransform(const Transform& transform)
 		{
 			mTransform = transform;
 		}
 
-		const Transform& getTransform() const
+		const Transform& GetTransform() const
 		{
 			return mTransform;
 		}
 
-		Transform getWorldTransform() const;
+		Transform GetWorldTransform() const;
 
 	private:
 		Transform mTransform;

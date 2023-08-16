@@ -13,7 +13,7 @@ public:
 	explicit MyGameObject(std::shared_ptr<SimpleEngine::GameObject> parent = nullptr) :
 		SimpleEngine::GameObject(parent) {}
 
-	virtual void init() override;
+	virtual void Init() override;
 private:
 	//std::shared_ptr<SimpleEngine::SpriteComponent> mSpriteComponent;
 

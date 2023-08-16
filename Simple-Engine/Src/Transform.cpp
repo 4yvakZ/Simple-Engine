@@ -26,62 +26,62 @@ SimpleEngine::Transform::Transform(const Transform& other)
 
 SimpleEngine::Transform& SimpleEngine::Transform::operator=(Transform other)
 {
-	swap(other);
+	Swap(other);
 	return *this;
 }
 
 SimpleEngine::Transform::Transform(Transform&& other) noexcept
 {
-	move(std::move(other));
+	Move(std::move(other));
 }
 
-DirectX::SimpleMath::Vector3 SimpleEngine::Transform::getPosition() const
+DirectX::SimpleMath::Vector3 SimpleEngine::Transform::GetPosition() const
 {
 	return mPosition;
 }
 
-void SimpleEngine::Transform::setPosition(const DirectX::SimpleMath::Vector3& position)
+void SimpleEngine::Transform::SetPosition(const DirectX::SimpleMath::Vector3& position)
 {
 	mIsWorldDirty = true;
 	mPosition = position;
 }
 
-DirectX::SimpleMath::Quaternion SimpleEngine::Transform::getRotation() const
+DirectX::SimpleMath::Quaternion SimpleEngine::Transform::GetRotation() const
 {
 	return mRotation;
 }
 
-void SimpleEngine::Transform::setRotation(const DirectX::SimpleMath::Quaternion& rotation)
+void SimpleEngine::Transform::SetRotation(const DirectX::SimpleMath::Quaternion& rotation)
 {
 	mIsWorldDirty = true;
 	mRotation = rotation;
 }
 
-DirectX::SimpleMath::Vector3 SimpleEngine::Transform::getScale() const
+DirectX::SimpleMath::Vector3 SimpleEngine::Transform::GetScale() const
 {
 	return mScale;
 }
 
-void SimpleEngine::Transform::setScale(const DirectX::SimpleMath::Vector3& scale)
+void SimpleEngine::Transform::SetScale(const DirectX::SimpleMath::Vector3& scale)
 {
 	mIsWorldDirty = true;
 	mScale = scale;
 }
 
-DirectX::SimpleMath::Matrix SimpleEngine::Transform::getWorld() const
+DirectX::SimpleMath::Matrix SimpleEngine::Transform::GetWorld() const
 {
-	checkDirtyWorld();
+	CheckDirtyWorld();
 	return mWorld;
 }
 
-DirectX::SimpleMath::Matrix SimpleEngine::Transform::getInvWorld() const
+DirectX::SimpleMath::Matrix SimpleEngine::Transform::GetInvWorld() const
 {
-	checkDirtyWorld();
+	CheckDirtyWorld();
 	return mInvWorld;
 }
 
 
-inline void SimpleEngine::Transform::swap(Transform& other)
+inline void SimpleEngine::Transform::Swap(Transform& other)
 {
 	std::swap(mPosition, other.mPosition);
 	std::swap(mScale, other.mScale);
@@ -92,7 +92,7 @@ inline void SimpleEngine::Transform::swap(Transform& other)
 	std::swap(mInvWorld, other.mInvWorld);
 }
 
-inline void SimpleEngine::Transform::move(Transform&& other)
+inline void SimpleEngine::Transform::Move(Transform&& other)
 {
 	mPosition = std::move(other.mPosition);
 	mScale = std::move(other.mScale);
@@ -103,7 +103,7 @@ inline void SimpleEngine::Transform::move(Transform&& other)
 	mInvWorld = std::move(other.mInvWorld);
 }
 
-inline void SimpleEngine::Transform::checkDirtyWorld() const
+inline void SimpleEngine::Transform::CheckDirtyWorld() const
 {
 	if (mIsWorldDirty)
 	{
@@ -118,19 +118,19 @@ namespace SimpleEngine {
 
 	Transform operator*(const Transform& rhs, const Transform& lhs)
 	{
-		return Transform(rhs.getPosition() + lhs.getPosition(), rhs.getRotation()*lhs.getRotation(), rhs.getScale() * lhs.getScale());
+		return Transform(rhs.GetPosition() + lhs.GetPosition(), rhs.GetRotation()*lhs.GetRotation(), rhs.GetScale() * lhs.GetScale());
 	}
 
 	Transform operator/(const Transform& rhs, const Transform& lhs)
 	{
-		return Transform(rhs.getPosition() - lhs.getPosition(), rhs.getRotation() / lhs.getRotation(), rhs.getScale() / lhs.getScale());
+		return Transform(rhs.GetPosition() - lhs.GetPosition(), rhs.GetRotation() / lhs.GetRotation(), rhs.GetScale() / lhs.GetScale());
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Transform& rhs)
 	{
-		auto rot = rhs.getRotation().ToEuler();
-		auto pos = rhs.getPosition();
-		auto scale = rhs.getScale();
+		auto rot = rhs.GetRotation().ToEuler();
+		auto pos = rhs.GetPosition();
+		auto scale = rhs.GetScale();
 		std::cout << "Transform {\n" <<
 			"\tPosition " << pos.x << ", " << pos.y << ", " << pos.z << "\n" <<
 			"\tRotation " << rot.x << ", " << rot.y << ", " << rot.z << "\n" <<

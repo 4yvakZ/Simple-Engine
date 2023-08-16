@@ -4,11 +4,11 @@
 
 using namespace SimpleEngine;
 
-Transform SimpleEngine::SceneComponent::getWorldTransform() const
+Transform SimpleEngine::SceneComponent::GetWorldTransform() const
 {
-    if (auto owner = getOwner())
+    if (auto owner = GetOwner())
     {
-        auto res = mTransform * getOwner()->getWorldTransform();
+        auto res = mTransform * GetOwner()->GetWorldTransform();
         return res;
     }
     return mTransform;

@@ -10,14 +10,14 @@
 
 using namespace SimpleEngine;
 
-void MyGameObject::init()
+void MyGameObject::Init()
 {
 	std::shared_ptr<Material> material = std::make_shared<Material>();
-	//mSpriteComponent = createComponent<SpriteComponent>(material);
+	//mSpriteComponent = CreateComponent<SpriteComponent>(material);
 
-	auto meshes = AssetManager::importMeshes("../assets/sphere.fbx");
+	auto meshes = AssetManager::ImportMeshes("../assets/sphere.fbx");
 
-	mMeshComponent = createComponent<MeshComponent>(material, meshes[0]);
+	mMeshComponent = CreateComponent<MeshComponent>(material, meshes[0]);
 
-	GameObject::init();
+	GameObject::Init();
 }

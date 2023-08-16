@@ -12,7 +12,7 @@ SimpleEngine::Material::Material():
 {
 }
 
-void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
+void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 {
 
 	D3D_SHADER_MACRO shaderMacros[] = {nullptr, nullptr };
@@ -176,7 +176,7 @@ void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	*/
 }
 
-void SimpleEngine::Material::bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	context->RSSetState(mRastState.Get());
 	context->IASetInputLayout(mInputLayout.Get());
@@ -191,7 +191,7 @@ void SimpleEngine::Material::bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	context->PSSetConstantBuffers(1, 1, &materialBuffer);*/
 }
 
-void SimpleEngine::Material::setPSFileName(const std::string& PSFileName)
+void SimpleEngine::Material::SetPSFileName(const std::string& PSFileName)
 {
 	mPSFileName = PSFileName;
 }
@@ -201,7 +201,7 @@ std::string SimpleEngine::Material::PSFileName() const
 	return mPSFileName;
 }
 
-void SimpleEngine::Material::setVSFileName(const std::string& VSFileName)
+void SimpleEngine::Material::SetVSFileName(const std::string& VSFileName)
 {
 	mVSFileName = VSFileName;
 }

@@ -8,7 +8,7 @@ using namespace DirectX::SimpleMath;
 
 using namespace SimpleEngine;
 
-InputDevice::InputDevice() : mGame(Game::getInstance())
+InputDevice::InputDevice() : mGame(Game::GetInstance())
 {
 	keys = std::make_unique<std::unordered_set<Keys>>();
 	
@@ -17,12 +17,12 @@ InputDevice::InputDevice() : mGame(Game::getInstance())
 	Rid[0].usUsagePage = 0x01;
 	Rid[0].usUsage = 0x02;
 	Rid[0].dwFlags = 0;   // adds HID mouse and also ignores legacy mouse messages
-	Rid[0].hwndTarget = mGame.lock()->getHWnd();
+	Rid[0].hwndTarget = mGame.lock()->GetHWnd();
 
 	Rid[1].usUsagePage = 0x01;
 	Rid[1].usUsage = 0x06;
 	Rid[1].dwFlags = 0;   // adds HID keyboard and also ignores legacy keyboard messages
-	Rid[1].hwndTarget = mGame.lock()->getHWnd();
+	Rid[1].hwndTarget = mGame.lock()->GetHWnd();
 
 	if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE)
 	{
@@ -71,7 +71,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	GetCursorPos(&p);
 	auto game = mGame.lock();
 	if (game) {
-		ScreenToClient(game->getHWnd(), &p);
+		ScreenToClient(game->GetHWnd(), &p);
 
 		MousePosition = Vector2(p.x, p.y);
 		MouseOffset = Vector2(args.X, args.Y);

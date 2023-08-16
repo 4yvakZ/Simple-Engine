@@ -14,44 +14,7 @@ SimpleEngine::RenderComponent::RenderComponent(std::shared_ptr<Material> materia
 
 void SimpleEngine::RenderComponent::Init()
 {
-	auto device = Game::GetRenderSystem()->getDevice();
-
-	mMaterial->Init(device);
-
 	InitObjectConstBuffer();
-	/*
-	///const buffer initialization
-	D3D11_BUFFER_DESC constBufDesc = {};
-	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
-	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	constBufDesc.MiscFlags = 0;
-	constBufDesc.StructureByteStride = 0;
-	constBufDesc.ByteWidth = sizeof(ConstBufferData);
-
-	D3D11_SUBRESOURCE_DATA constData = {};
-	constData.pSysMem = &constBufferData;
-	constData.SysMemPitch = 0;
-	constData.SysMemSlicePitch = 0;
-
-	render->Device->CreateBuffer(&constBufDesc, &constData, &constBuffer);
-
-	///material const buffer initialization
-	D3D11_BUFFER_DESC materialBufDesc = {};
-	materialBufDesc.Usage = D3D11_USAGE_DYNAMIC;
-	materialBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	materialBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	materialBufDesc.MiscFlags = 0;
-	materialBufDesc.StructureByteStride = 0;
-	materialBufDesc.ByteWidth = sizeof(MaterialBufferData);
-
-	D3D11_SUBRESOURCE_DATA materialData = {};
-	materialData.pSysMem = &materialBufferData;
-	materialData.SysMemPitch = 0;
-	materialData.SysMemSlicePitch = 0;
-
-	render->Device->CreateBuffer(&materialBufDesc, &materialData, &materialBuffer);
-	*/
 }
 
 void SimpleEngine::RenderComponent::Update()

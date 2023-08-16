@@ -17,28 +17,30 @@ namespace SimpleEngine {
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
-	public:
-		static const std::string kDefaultPSName;
-		static const std::string kDefaultVSName;
-
 		void SetPSFileName(const std::string& PSFileName);
 		std::string PSFileName() const;
 
 		void SetVSFileName(const std::string& VSFileName);
 		std::string VSFileName() const;
 
+		
+
+	private:
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName);
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const DirectX::SimpleMath::Color& color);
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const float value);
+
 	private:
 		std::string mPSFileName;
 		std::string mVSFileName;
 
-		// Fong lighting
-		std::string mAlbedoTextureName;
-		DirectX::SimpleMath::Color mColor;
+		// Textures
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAlbedoMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mNormalMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetalicMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mRoughnessMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAOMap;
 
-		DirectX::SimpleMath::Vector4 mAmbient;
-
-		std::string mSpecularAlphaTextureName;
-		DirectX::SimpleMath::Vector4 mSpecularAlpha;
 
 		//DirectX
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputLayout;
@@ -50,6 +52,7 @@ namespace SimpleEngine {
 		Microsoft::WRL::ComPtr<ID3DBlob> mVertexShaderByteCode;
 
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRastState;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	};
 }
 

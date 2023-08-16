@@ -13,7 +13,7 @@ using namespace SimpleEngine;
 void MyGameObject::init()
 {
 	std::shared_ptr<Material> material = std::make_shared<Material>();
-	mSpriteComponent = createComponent<SpriteComponent>(material);
+	//mSpriteComponent = createComponent<SpriteComponent>(material);
 
 	auto meshes = AssetManager::importMeshes("../assets/sphere.fbx");
 

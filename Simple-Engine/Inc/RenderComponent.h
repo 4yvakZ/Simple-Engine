@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SceneComponent.h"
-#include "Transform.h"
+#include "ShaderStructs.h"
 
 namespace SimpleEngine
 {
@@ -22,33 +22,26 @@ namespace SimpleEngine
 
 		virtual void construct() override;
 
-		auto getMaterial() const
-		{
-			return mMaterial;
-		}
-
-		void setMaterial(std::shared_ptr<Material> material)
-		{
-			mMaterial = material;
-		}
+		std::shared_ptr<Material> getMaterial() const;
+		void setMaterial(std::shared_ptr<Material> material);
 
 	protected:
-		void initVertexandIndexBuffer(const std::vector<VertexData>& vertecis, const std::vector<uint32_t>& indecis);
+		void initVertexBuffer(const std::vector<VertexData>& vertecis);
+		void initIndexBuffer(const std::vector<uint32_t>& indecis);
+		Microsoft::WRL::ComPtr<ID3D11Buffer> getIndexBuffer() const;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> getVertexBuffer() const;
 
-		auto getIndexBuffer() const
-		{
-			return mIndexBuffer;
-		}
-		
-		auto getVertexBuffer() const
-		{
-			return mVertexBuffer;
-		}
+		void initObjectConstBuffer();
+		void updateObjectConstBuffer();
+		Microsoft::WRL::ComPtr<ID3D11Buffer> getObjectConstBuffer() const;
 	private:
 		std::shared_ptr<Material> mMaterial;
 
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer;
+
+		ObjectConstBufferData mObjectConstBufferData;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> mObjectConstBuffer;
 	};
 }
 

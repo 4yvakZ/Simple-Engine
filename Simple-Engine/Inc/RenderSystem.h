@@ -22,9 +22,8 @@ namespace SimpleEngine {
 
 		virtual void update(const FrameConstBufferData& frameBufferData);
 
-		auto getDevice() {
-			return mDevice;
-		}
+		Microsoft::WRL::ComPtr<ID3D11Device> getDevice();
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> getContext();
 
 		void addRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
 
@@ -32,7 +31,7 @@ namespace SimpleEngine {
 
 		void initFrameConstBuffer();
 
-		void updateFrameConstBuffer(const FrameConstBufferData& frameBufferData);
+		void updateFrameConstBuffer();
 
 	private:
 		
@@ -46,11 +45,13 @@ namespace SimpleEngine {
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> mBackBuffer;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTarget;
 
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
 		DirectX::SimpleMath::Viewport mViewport;
 
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRastState;
 
-		//NOTE possible optimization (CPU cahce) create separate vectors without pointers for each Renderer type
+		//NOTE possible optimization point (CPU cahce)
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;
 	};
 }

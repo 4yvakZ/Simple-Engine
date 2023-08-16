@@ -14,9 +14,8 @@ SimpleEngine::Material::Material():
 
 void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 {
-	//D3D_SHADER_MACRO shaderMacros[] = {"PLAIN", "true", "FORWARD", "true", nullptr, nullptr};
 
-	D3D_SHADER_MACRO shaderMacros[] = { "PLAIN", "true", nullptr, nullptr };
+	D3D_SHADER_MACRO shaderMacros[] = {nullptr, nullptr };
 
 	ID3DBlob* errorVertexCode = nullptr;
 	std::wstring VSFileName(mVSFileName.begin(), mVSFileName.end());
@@ -46,7 +45,6 @@ void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	}
 
 	///pixelShaderByteCode initialization
-
 	std::wstring PSFileName(mPSFileName.begin(), mPSFileName.end());
 	ID3DBlob* errorPixelCode;
 	res = D3DCompileFromFile(PSFileName.c_str(),
@@ -95,14 +93,6 @@ void SimpleEngine::Material::init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 			DXGI_FORMAT_R32G32B32_FLOAT,
 			0,
 			0,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0},
-		D3D11_INPUT_ELEMENT_DESC {
-			"COLOR",
-			0,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0,
-			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
 			0},
 		D3D11_INPUT_ELEMENT_DESC {

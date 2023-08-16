@@ -15,7 +15,7 @@ SimpleEngine::SpriteComponent::SpriteComponent(std::shared_ptr<Material> materia
 void SimpleEngine::SpriteComponent::draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	///Setup AI stage
-	UINT strides[] = { 48 };
+	UINT strides[] = { sizeof(VertexData) };
 	UINT offsets[] = { 0 };
 
 	getMaterial()->bind(context);
@@ -36,7 +36,7 @@ void SimpleEngine::SpriteComponent::init()
 
 	mVertecis.reserve(4);
 
-	VertexData point(Vector3 (-0.5, -0.5, 0.5), Color(0,1,0,1));
+	VertexData point(Vector3 (-0.5, -0.5, 0.5));
 	mVertecis.push_back(point);
 	point.mPos.y = 0.5;
 	mVertecis.push_back(point);
@@ -46,5 +46,6 @@ void SimpleEngine::SpriteComponent::init()
 	point.mPos.y = 0.5;
 	mVertecis.push_back(point);
 
-	initVertexandIndexBuffer(mVertecis, mIndecis);
+	initVertexBuffer(mVertecis);
+	initIndexBuffer(mIndecis);
 }

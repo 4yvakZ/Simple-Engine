@@ -15,7 +15,7 @@ public:
 
 	virtual void init() override;
 private:
-	std::shared_ptr<SimpleEngine::SpriteComponent> mSpriteComponent;
+	//std::shared_ptr<SimpleEngine::SpriteComponent> mSpriteComponent;
 
 	std::shared_ptr<SimpleEngine::MeshComponent> mMeshComponent;
 };

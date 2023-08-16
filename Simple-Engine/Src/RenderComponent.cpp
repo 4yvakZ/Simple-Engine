@@ -17,6 +17,8 @@ void SimpleEngine::RenderComponent::init()
 	auto device = Game::getRenderSystem()->getDevice();
 
 	mMaterial->init(device);
+
+	initObjectConstBuffer();
 	/*
 	///const buffer initialization
 	D3D11_BUFFER_DESC constBufDesc = {};
@@ -54,6 +56,7 @@ void SimpleEngine::RenderComponent::init()
 
 void SimpleEngine::RenderComponent::update()
 {
+	updateObjectConstBuffer();
 }
 
 void SimpleEngine::RenderComponent::construct()
@@ -63,7 +66,17 @@ void SimpleEngine::RenderComponent::construct()
 	Game::getRenderSystem()->addRenderComponent(std::dynamic_pointer_cast<RenderComponent>(shared_from_this()));
 }
 
-void SimpleEngine::RenderComponent::initVertexandIndexBuffer(const std::vector<VertexData>& vertecis, const std::vector<uint32_t>& indecis)
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::RenderComponent::getMaterial() const
+{
+	return mMaterial;
+}
+
+void SimpleEngine::RenderComponent::setMaterial(std::shared_ptr<Material> material)
+{
+	mMaterial = material;
+}
+
+void SimpleEngine::RenderComponent::initVertexBuffer(const std::vector<VertexData>& vertecis)
 {
 	auto device = Game::getRenderSystem()->getDevice();
 	///vertix buffer initialization
@@ -81,7 +94,11 @@ void SimpleEngine::RenderComponent::initVertexandIndexBuffer(const std::vector<V
 	vertexData.SysMemSlicePitch = 0;
 
 	device->CreateBuffer(&vertexBufDesc, &vertexData, mVertexBuffer.GetAddressOf());
+}
 
+void SimpleEngine::RenderComponent::initIndexBuffer(const std::vector<uint32_t>& indecis)
+{
+	auto device = Game::getRenderSystem()->getDevice();
 	///indexBuffer initialization
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -97,4 +114,56 @@ void SimpleEngine::RenderComponent::initVertexandIndexBuffer(const std::vector<V
 	indexData.SysMemSlicePitch = 0;
 
 	device->CreateBuffer(&indexBufDesc, &indexData, mIndexBuffer.GetAddressOf());
+}
+
+Microsoft::WRL::ComPtr<ID3D11Buffer> SimpleEngine::RenderComponent::getIndexBuffer() const
+{
+	return mIndexBuffer;
+}
+
+Microsoft::WRL::ComPtr<ID3D11Buffer> SimpleEngine::RenderComponent::getVertexBuffer() const
+{
+	return mVertexBuffer;
+}
+
+void SimpleEngine::RenderComponent::initObjectConstBuffer()
+{
+	auto device = Game::getRenderSystem()->getDevice();
+
+	D3D11_BUFFER_DESC constBufDesc = {};
+	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufDesc.MiscFlags = 0;
+	constBufDesc.StructureByteStride = 0;
+	constBufDesc.ByteWidth = sizeof(mObjectConstBufferData);
+
+	D3D11_SUBRESOURCE_DATA constData = {};
+	constData.pSysMem = &mObjectConstBufferData;
+	constData.SysMemPitch = 0;
+	constData.SysMemSlicePitch = 0;
+
+	device->CreateBuffer(&constBufDesc, &constData, mObjectConstBuffer.GetAddressOf());
+}
+
+void SimpleEngine::RenderComponent::updateObjectConstBuffer()
+{
+	auto transform = getWorldTransform();
+	mObjectConstBufferData.mWorld = transform.getWorld();
+	mObjectConstBufferData.mInvWorld = transform.getInvWorld();
+
+	auto context = Game::getRenderSystem()->getContext();
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+	context->Map(mObjectConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+	memcpy(mappedResource.pData, &mObjectConstBufferData, sizeof(ObjectConstBufferData));
+
+	context->Unmap(mObjectConstBuffer.Get(), 0);
+}
+
+Microsoft::WRL::ComPtr<ID3D11Buffer> SimpleEngine::RenderComponent::getObjectConstBuffer() const
+{
+	return mObjectConstBuffer;
 }

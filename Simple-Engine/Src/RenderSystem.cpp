@@ -19,6 +19,8 @@ SimpleEngine::RenderSystem::~RenderSystem()
 
 void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeight)
 {
+	mViewport = Viewport(0.0f, 0.0f, static_cast<float>(clientWidth), static_cast<float>(clientHeight));
+
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
 	DXGI_SWAP_CHAIN_DESC swapDesc = {};
@@ -62,7 +64,26 @@ void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeig
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), IID_PPV_ARGS_Helper(mBackBuffer.GetAddressOf()));	// __uuidof(ID3D11Texture2D)
 	mDevice->CreateRenderTargetView(mBackBuffer.Get(), nullptr, mRenderTarget.GetAddressOf());
 
-	mViewport = Viewport(0.0f, 0.0f, static_cast<float>(clientWidth), static_cast<float>(clientHeight));
+	D3D11_TEXTURE2D_DESC depthTexDesc = {};
+	depthTexDesc.ArraySize = 1;
+	depthTexDesc.MipLevels = 1;
+	depthTexDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	depthTexDesc.CPUAccessFlags = 0;
+	depthTexDesc.MiscFlags = 0;
+	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthTexDesc.Width = mViewport.width;
+	depthTexDesc.Height = mViewport.height;
+	depthTexDesc.SampleDesc = { 1, 0 };
+
+	res = mDevice->CreateTexture2D(&depthTexDesc, nullptr, &mDepthStencilBuffer);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	res = mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &depthStencilViewDesc, mDepthStencilView.GetAddressOf());
 
 	D3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
@@ -74,7 +95,9 @@ void SimpleEngine::RenderSystem::init(HWND hWnd, int clientWidth, int clientHeig
 void SimpleEngine::RenderSystem::prepareFrame()
 {
 	mContext->ClearRenderTargetView(mRenderTarget.Get(), backgroundColor);
-	mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), nullptr);
+	mContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
 	mContext->RSSetViewports(1, mViewport.Get11());
 }
 
@@ -107,7 +130,17 @@ void SimpleEngine::RenderSystem::endFrame()
 
 void SimpleEngine::RenderSystem::update(const FrameConstBufferData& frameBufferData)
 {
-	updateFrameConstBuffer(frameBufferData);
+	mFrameConstBufferData = frameBufferData;
+	updateFrameConstBuffer();
+}
+
+Microsoft::WRL::ComPtr<ID3D11Device> SimpleEngine::RenderSystem::getDevice() {
+	return mDevice;
+}
+
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> SimpleEngine::RenderSystem::getContext()
+{
+	return mContext;
 }
 
 void SimpleEngine::RenderSystem::addRenderComponent(std::shared_ptr<RenderComponent> renderComponent)
@@ -133,14 +166,13 @@ void SimpleEngine::RenderSystem::initFrameConstBuffer()
 	mDevice->CreateBuffer(&constBufDesc, &constData, mFrameConstBuffer.GetAddressOf());
 }
 
-void SimpleEngine::RenderSystem::updateFrameConstBuffer(const FrameConstBufferData& frameBufferData)
+void SimpleEngine::RenderSystem::updateFrameConstBuffer()
 {
-
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 	mContext->Map(mFrameConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-	memcpy(mappedResource.pData, &frameBufferData, sizeof(FrameConstBufferData));
+	memcpy(mappedResource.pData, &mFrameConstBufferData, sizeof(FrameConstBufferData));
 
 	mContext->Unmap(mFrameConstBuffer.Get(), 0);
 }

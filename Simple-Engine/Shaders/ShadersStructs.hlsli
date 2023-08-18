@@ -25,7 +25,7 @@ cbuffer FRAME_CONST_BUF : register(b0)
 cbuffer OBJECT_CONST_BUF : register(b1)
 {
     Matrix world;
-    Matrix invWorld;
+    Matrix transpInvWorld;
 }
 
 struct LightData
@@ -41,8 +41,8 @@ cbuffer LIGHT_CONST_BUF : register(b2)
 
 SamplerState Sampler : register(s0);
 
-Texture2D AlbedoMap : register(t0);
-Texture2D NormalMap : register(t1);
-Texture2D MetalicMap : register(t2);
-Texture2D RoughnessMap : register(t3);
-Texture2D AOMap : register(t4);
+Texture2D<float4> AlbedoMap : register(t0);
+Texture2D<float4> NormalMap : register(t1);
+Texture2D<float> MetallicMap : register(t2);
+Texture2D<float> RoughnessMap : register(t3);
+Texture2D<float> AOMap : register(t4);

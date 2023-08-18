@@ -3,6 +3,7 @@
 
 namespace SimpleEngine {
 
+	class DirectionalLightComponent;
 	class RenderComponent;
 	class MeshRenderer;
 	
@@ -26,6 +27,8 @@ namespace SimpleEngine {
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> getContext();
 
 		void AddRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
+
+		void AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent);
 
 	private:
 
@@ -53,6 +56,8 @@ namespace SimpleEngine {
 
 		//NOTE possible optimization point (CPU cahce)
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;
+
+		std::vector<std::weak_ptr<DirectionalLightComponent>> mDirectionalLightComponents;
 	};
 }
 

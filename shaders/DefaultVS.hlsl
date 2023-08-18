@@ -7,7 +7,7 @@ PS_IN main(VS_IN input)
     output.worldPos = mul(float4(input.pos, 1.0f), world);
     output.pos = mul(output.worldPos, viewProjection);
     output.uv = input.uv;
-    output.normal = mul(mul(float4(input.normal, 0.0f), world), invWorld);
-
+    output.normal = mul(float4(input.normal, 0.0f), transpInvWorld);
+    
     return output;
 }

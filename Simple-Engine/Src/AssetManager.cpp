@@ -62,11 +62,11 @@ void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, 
 				Vector3 normal;
 				//if (isZUp)
 				//{
-				normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].z, -mesh->mNormals[i].y);
+				//normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].z, -mesh->mNormals[i].y);
 				//}
 				//else
 				//{
-				//	normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+				normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 				//}
 
 				myMesh->mVertecis.emplace_back(point, UV, normal);

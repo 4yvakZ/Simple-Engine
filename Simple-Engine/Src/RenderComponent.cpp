@@ -113,7 +113,8 @@ void SimpleEngine::RenderComponent::UpdateObjectConstBuffer()
 {
 	auto transform = GetWorldTransform();
 	mObjectConstBufferData.mWorld = transform.GetWorld();
-	mObjectConstBufferData.mInvWorld = transform.GetInvWorld();
+	auto transpInv = transform.GetInvWorld().Transpose();
+	mObjectConstBufferData.mTranspInvWorld = transpInv;
 
 	auto context = Game::GetRenderSystem()->getContext();
 

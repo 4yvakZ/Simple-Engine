@@ -188,6 +188,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\Main.cpp" />
+    <ClCompile Include="Src\Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simple-Engine\Simple-Engine.vcxproj">
@@ -201,6 +202,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
     <ClInclude Include="Inc\Player.h" />
     <ClInclude Include="Inc\MyGameObject.h" />
     <ClInclude Include="Src\pch.h" />
+    <ClInclude Include="Src\Sun.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

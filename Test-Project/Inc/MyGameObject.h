@@ -14,8 +14,12 @@ public:
 		SimpleEngine::GameObject(parent) {}
 
 	virtual void Init() override;
+	virtual void Update(float deltaTime) override;
+
+	void SetRotationSpeed(float speed);
 private:
 	//std::shared_ptr<SimpleEngine::SpriteComponent> mSpriteComponent;
+	float mRotationSpeed = 0;
 
 	std::shared_ptr<SimpleEngine::MeshComponent> mMeshComponent;
 };

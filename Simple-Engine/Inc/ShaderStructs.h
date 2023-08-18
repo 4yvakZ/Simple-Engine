@@ -14,7 +14,7 @@ namespace SimpleEngine {
     struct ObjectConstBufferData
     {
         DirectX::SimpleMath::Matrix mWorld;
-        DirectX::SimpleMath::Matrix mInvWorld;
+        DirectX::SimpleMath::Matrix mTranspInvWorld;
     };
 
     struct FrameConstBufferData
@@ -23,12 +23,9 @@ namespace SimpleEngine {
         DirectX::SimpleMath::Vector4 mCameraPos;
     };
 
-    /*struct MaterialBuf
+    struct LightConstBufferData
     {
-        DirectX::SimpleMath::Vector4 mAmbient;
-        DirectX::SimpleMath::Vector4 diffuse;
-        DirectX::SimpleMath::Vector4 specularAlpha;
-    };*/
-
-
+        DirectX::SimpleMath::Vector4 mDirection;
+        DirectX::SimpleMath::Vector4 mIntensity;
+    };
 }

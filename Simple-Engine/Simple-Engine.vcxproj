@@ -187,6 +187,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\DirectionalLightComponent.cpp" />
     <ClCompile Include="Src\Utils.cpp" />
     <ClCompile Include="Src\CameraComponent.cpp" />
     <ClCompile Include="Src\SceneComponent.cpp" />
@@ -212,6 +213,7 @@ xcopy /y /s "$(ProjectDir)Shaders\" "$(TargetDir)..\shaders\"</Command>
     <ClCompile Include="Src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Inc\DirectionalLightComponent.h" />
     <ClInclude Include="Inc\CameraComponent.h" />
     <ClInclude Include="Inc\Component.h" />
     <ClInclude Include="Inc\GameObject.h" />

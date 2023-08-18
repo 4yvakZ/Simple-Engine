@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RenderSystem.h"
 #include "RenderComponent.h"
+#include "DirectionalLightComponent.h"
 
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
@@ -104,6 +105,9 @@ void SimpleEngine::RenderSystem::PrepareFrame()
 void SimpleEngine::RenderSystem::Draw()
 {
 	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
+	mContext->PSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
+
+	mDirectionalLightComponents[0].lock()->Bind(mContext);
 
 	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
 	{
@@ -146,6 +150,11 @@ Microsoft::WRL::ComPtr<ID3D11DeviceContext> SimpleEngine::RenderSystem::getConte
 void SimpleEngine::RenderSystem::AddRenderComponent(std::shared_ptr<RenderComponent> renderComponent)
 {
 	mRenderComponents.emplace_back(renderComponent);
+}
+
+void SimpleEngine::RenderSystem::AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent)
+{
+	mDirectionalLightComponents.emplace_back(lightComponent);
 }
 
 void SimpleEngine::RenderSystem::InitFrameConstBuffer()

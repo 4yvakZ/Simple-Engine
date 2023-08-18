@@ -37,7 +37,7 @@ namespace SimpleEngine {
 		// Textures
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAlbedoMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mNormalMap;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetalicMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetallicMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mRoughnessMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAOMap;
 

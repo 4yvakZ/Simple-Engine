@@ -3,6 +3,7 @@
 #include "Game.h"
 
 #include "MyGameObject.h"
+#include "Sun.h"
 #include "Transform.h"
 #include "Player.h"
 #include "ShaderStructs.h"
@@ -29,15 +30,21 @@ int main() {
 #endif
 	auto game = Game::CreateGameInstance<Game>();
 
+
+	auto player = Game::CreateGameObject<Player>();
+
+	auto sun = Game::CreateGameObject<Sun>();
+
 	auto myGameObject = Game::CreateGameObject<MyGameObject>();
 	auto myGameObject1 = Game::CreateGameObject<MyGameObject>();
 
-	auto player = Game::CreateGameObject<Player>();
 	Transform transform;
 	transform.SetPosition(Vector3(0, 0, 5));
 	player->SetTransform(transform);
 	transform.SetPosition(Vector3(4, 0, 0));
+	//transform.SetScale(Vector3(1, 1, 4));
 	myGameObject1->SetTransform(transform);
+	myGameObject1->SetRotationSpeed(1);
 
 	game->Run();
 }

@@ -2,13 +2,14 @@
 #include "Material.h"
 
 #include <DirectXTex.h>
+#include "Utils.h"
 
 const std::string kDefaultPSName = "../shaders/DefaultPS.hlsl";
 const std::string kDefaultVSName = "../shaders/DefaultVS.hlsl";
-const std::string kDefaultAlbedoName = "../assets/debug.jpg";
+const std::string kDefaultAlbedoName = "../assets/debug.png";
 
 constexpr DirectX::SimpleMath::Vector3 kDefaultNormal = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f);
-constexpr float kDefaultMetalic = 0.0f; 
+constexpr float kDefaultMetallic = 0.0f; 
 constexpr float kDefaultRoughtness = 0.5f;
 constexpr float kDefaultAO = 1.0f;
 
@@ -148,8 +149,8 @@ void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	res = device->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf());
 
 	mAlbedoMap = InitTextureSRV(device, kDefaultAlbedoName);
-	mNormalMap = InitTextureSRV(device, Color(kDefaultNormal));
-	mMetalicMap = InitTextureSRV(device, kDefaultMetalic);
+	mNormalMap = InitTextureSRV(device, ToVector4(kDefaultNormal, 0.0f));
+	mMetallicMap = InitTextureSRV(device, kDefaultMetallic);
 	mRoughnessMap = InitTextureSRV(device, kDefaultRoughtness);
 	mAOMap = InitTextureSRV(device, kDefaultAO);
 
@@ -167,7 +168,7 @@ void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	context->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 	context->PSSetShaderResources(0, 1, mAlbedoMap.GetAddressOf());
 	context->PSSetShaderResources(1, 1, mNormalMap.GetAddressOf());
-	context->PSSetShaderResources(2, 1, mMetalicMap.GetAddressOf());
+	context->PSSetShaderResources(2, 1, mMetallicMap.GetAddressOf());
 	context->PSSetShaderResources(3, 1, mRoughnessMap.GetAddressOf());
 	context->PSSetShaderResources(4, 1, mAOMap.GetAddressOf());
 }
@@ -211,7 +212,7 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTex
 	}
 	else
 	{
-		res = LoadFromWICFile(fileName.c_str(), DirectX::WIC_FLAGS_DEFAULT_SRGB, nullptr, image);
+		res = LoadFromWICFile(fileName.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
 	}
 
 	if (SUCCEEDED(res))

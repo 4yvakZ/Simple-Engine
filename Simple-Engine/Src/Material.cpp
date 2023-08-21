@@ -8,7 +8,7 @@ const std::string kDefaultPSName = "../shaders/DefaultPS.hlsl";
 const std::string kDefaultVSName = "../shaders/DefaultVS.hlsl";
 const std::string kDefaultAlbedoName = "../assets/debug.png";
 
-constexpr DirectX::SimpleMath::Vector3 kDefaultNormal = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 1.0f);
+constexpr DirectX::SimpleMath::Vector3 kDefaultNormal = DirectX::SimpleMath::Vector3(0.5f, 0.5f, 1.0f);
 constexpr float kDefaultMetallic = 0.0f; 
 constexpr float kDefaultRoughtness = 0.5f;
 constexpr float kDefaultAO = 1.0f;
@@ -117,6 +117,14 @@ void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 			0,
 			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
+			0},
+		D3D11_INPUT_ELEMENT_DESC {
+			"TANGENT",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
 			0}
 	};
 
@@ -150,6 +158,7 @@ void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 
 	mAlbedoMap = InitTextureSRV(device, kDefaultAlbedoName);
 	mNormalMap = InitTextureSRV(device, ToVector4(kDefaultNormal, 0.0f));
+	//mNormalMap = InitTextureSRV(device, "../assets/testNormalMap.png");
 	mMetallicMap = InitTextureSRV(device, kDefaultMetallic);
 	mRoughnessMap = InitTextureSRV(device, kDefaultRoughtness);
 	mAOMap = InitTextureSRV(device, kDefaultAO);

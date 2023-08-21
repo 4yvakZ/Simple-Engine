@@ -7,17 +7,15 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
 float3 fresnelSchlick(float cosTheta, float3 F0);
 
-float3 GetNormals(float2 uv)
-{
-    return normalize(NormalMap.Sample(Sampler, uv) * 2.0 - 1.0);
-}
-
 float4 main(PS_IN input) : SV_Target
 {
     float3 albedo = pow(AlbedoMap.Sample(Sampler, input.uv).xyz, float3(2.2, 2.2, 2.2));
-    float3 normal = input.normal;
-    //float3 normal = GetNormals(input.uv);
+
+    float3 normal = NormalMap.Sample(Sampler, input.uv);
+    normal = normal * 2.0 - 1.0;
+    normal = normalize(mul(normal, input.TBN));
     //return float4(normal, 1.0);
+    
     float metallic = MetallicMap.Sample(Sampler, input.uv);
     float roughness = RoughnessMap.Sample(Sampler, input.uv);
     float ao = AOMap.Sample(Sampler, input.uv);

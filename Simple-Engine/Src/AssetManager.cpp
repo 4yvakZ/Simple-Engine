@@ -59,17 +59,10 @@ void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, 
 					vertex.z);
 
 				Vector2 UV = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-				Vector3 normal;
-				//if (isZUp)
-				//{
-				//normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].z, -mesh->mNormals[i].y);
-				//}
-				//else
-				//{
-				normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-				//}
+				Vector3 normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+				Vector3 tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 
-				myMesh->mVertecis.emplace_back(point, UV, normal);
+				myMesh->mVertecis.emplace_back(point, UV, normal, tangent);
 			}
 
 

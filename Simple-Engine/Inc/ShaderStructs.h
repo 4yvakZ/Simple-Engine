@@ -3,12 +3,13 @@
 namespace SimpleEngine {
     struct VertexData
     {
-        VertexData(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector2 uv, DirectX::SimpleMath::Vector3 normal);
+        VertexData(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector2 uv, DirectX::SimpleMath::Vector3 normal, DirectX::SimpleMath::Vector3 tangent);
         VertexData(DirectX::SimpleMath::Vector3 pos);
 
         DirectX::SimpleMath::Vector3 mPos;
         DirectX::SimpleMath::Vector2 mUv;
         DirectX::SimpleMath::Vector3 mNormal;
+        DirectX::SimpleMath::Vector3 mTangent;
     };
 
     struct ObjectConstBufferData

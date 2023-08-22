@@ -46,8 +46,6 @@ float4 main(PS_IN input) : SV_Target
     float NdotL = max(dot(normal, lightDir), 0.0);
     float3 Lo = (kD * albedo / PI + specular) * light.intensity.xyz * NdotL;
     
-    float3 output = float4(pow(albedo, 0.45), 1);
-    
     float3 ambient = 0.03 * albedo * ao;
    
     float3 color = Lo + ambient;

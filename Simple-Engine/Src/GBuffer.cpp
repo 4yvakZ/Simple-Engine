@@ -15,7 +15,7 @@ void SimpleEngine::GBuffer::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	InitResource(device, mNormalTexture, mNormalSRV, mNormalRTV);
 	InitResource(device, mAlbedoTexture, mAlbedoSRV, mAlbedoRTV);
 	InitResource(device, mMetallicRoughtnessAOTexture, mMetallicRoughtnessAOSRV, mMetallicRoughtnessAORTV);
-
+	InitResource(device, mLightingTexture, mLightingSRV, mLightingRTV);
 }
 
 void SimpleEngine::GBuffer::Clear(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
@@ -25,15 +25,19 @@ void SimpleEngine::GBuffer::Clear(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	context->ClearRenderTargetView(mNormalRTV.Get(), Color(0, 0, 0, 0));
 	context->ClearRenderTargetView(mAlbedoRTV.Get(), Color(0, 0, 0, 0));
 	context->ClearRenderTargetView(mMetallicRoughtnessAORTV.Get(), Color(0, 0, 0, 0));
+	context->ClearRenderTargetView(mLightingRTV.Get(), Color(0, 0, 0, 0));
 	context->ClearDepthStencilView(mDepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void SimpleEngine::GBuffer::Unbind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+	ID3D11ShaderResourceView* nullsrvs[] = { nullptr, nullptr, nullptr, nullptr };
+	context->PSSetShaderResources(0, 4, nullsrvs);
 }
 
 void SimpleEngine::GBuffer::SetAsTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	context->RSSetViewports(1, mViewport.Get11());
-
-	ID3D11ShaderResourceView* nullsrv[] = { nullptr, nullptr, nullptr, nullptr };
-	context->PSSetShaderResources(0, 4, nullsrv);
 
 	ID3D11RenderTargetView* rtvs[] = { mPositionRTV.Get(), mAlbedoRTV.Get(), mNormalRTV.Get(), mMetallicRoughtnessAORTV.Get()};
 	context->OMSetRenderTargets(4, rtvs, mDepthView.Get());
@@ -41,10 +45,27 @@ void SimpleEngine::GBuffer::SetAsTarget(Microsoft::WRL::ComPtr<ID3D11DeviceConte
 
 void SimpleEngine::GBuffer::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
-	ID3D11RenderTargetView* nullrtv[] = { nullptr, nullptr, nullptr, nullptr };
-	context->OMSetRenderTargets(4, nullrtv, nullptr);
-	ID3D11ShaderResourceView* srvs[] = { mPositionSRV.Get(), mAlbedoSRV.Get(), mNormalSRV.Get(), mMetallicRoughtnessAOSRV.Get() };
+	ID3D11ShaderResourceView* srvs[] = { mPositionSRV.Get(), mNormalSRV.Get(), mAlbedoSRV.Get(), mMetallicRoughtnessAOSRV.Get() };
 	context->PSSetShaderResources(0, 4, srvs);
+}
+
+void SimpleEngine::GBuffer::UnbindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+	ID3D11ShaderResourceView* nullsrv[] = { nullptr };
+	context->PSSetShaderResources(4, 1, nullsrv);
+}
+
+void SimpleEngine::GBuffer::SetLightingTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+	context->RSSetViewports(1, mViewport.Get11());
+
+	context->OMSetRenderTargets(1, mLightingRTV.GetAddressOf(), nullptr);
+}
+
+void SimpleEngine::GBuffer::BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+
+	context->PSSetShaderResources(4, 1, mLightingSRV.GetAddressOf());
 }
 
 void SimpleEngine::GBuffer::InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Device> device)

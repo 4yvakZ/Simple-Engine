@@ -11,10 +11,25 @@ namespace SimpleEngine {
 	class RenderSystem
 	{
 	public:
+		enum class DebugFlag {
+			None = -1,
+			WorldPosition = 0,
+			Normals = 1,
+			Albedo = 2,
+			MetallicRoughnessAO = 3,
+			Lighting
+		};
+
 		explicit RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight);
 		virtual ~RenderSystem();
 
+		RenderSystem(const RenderSystem&) = delete;
+		RenderSystem operator=(const RenderSystem&) = delete;
+
+
 		virtual void Init(HWND hWnd, int ClientWidth, int ClientHeight);
+
+
 
 		virtual void PrepareFrame();
 
@@ -31,7 +46,14 @@ namespace SimpleEngine {
 
 		void AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent);
 
+		void SetDebugFlag(DebugFlag flag);
+
 	private:
+		void InitDepthBuffer();
+
+		void InitDepthStencilStateOff();
+
+		void InitBlendState();
 
 		void InitFrameConstBuffer();
 
@@ -41,6 +63,9 @@ namespace SimpleEngine {
 		
 		FrameConstBufferData mFrameConstBufferData;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mFrameConstBuffer;
+
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilStateOff;
+		Microsoft::WRL::ComPtr<ID3D11BlendState> mBlendState;
 
 		Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> mContext;
@@ -61,6 +86,9 @@ namespace SimpleEngine {
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;
 
 		std::vector<std::weak_ptr<DirectionalLightComponent>> mDirectionalLightComponents;
+
+
+		DebugFlag mDebugFlag = DebugFlag::None;
 	};
 }
 

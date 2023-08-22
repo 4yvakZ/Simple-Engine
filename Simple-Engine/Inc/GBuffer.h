@@ -8,8 +8,14 @@ namespace SimpleEngine {
 
 		void Init(Microsoft::WRL::ComPtr<ID3D11Device> device);
 		void Clear(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+
+		void Unbind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 		void SetAsTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+
+		void UnbindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void SetLightingTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
 	private:
 		void InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Device> device);
@@ -37,6 +43,11 @@ namespace SimpleEngine {
 		Microsoft::WRL::ComPtr <ID3D11Texture2D> mMetallicRoughtnessAOTexture;
 		Microsoft::WRL::ComPtr <ID3D11ShaderResourceView> mMetallicRoughtnessAOSRV;
 		Microsoft::WRL::ComPtr <ID3D11RenderTargetView> mMetallicRoughtnessAORTV;
+
+		Microsoft::WRL::ComPtr <ID3D11Texture2D> mLightingTexture;
+		Microsoft::WRL::ComPtr <ID3D11ShaderResourceView> mLightingSRV;
+		Microsoft::WRL::ComPtr <ID3D11RenderTargetView> mLightingRTV;
+
 	};
 }
 

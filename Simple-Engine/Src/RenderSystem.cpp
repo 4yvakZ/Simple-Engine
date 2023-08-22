@@ -4,12 +4,13 @@
 #include "DirectionalLightComponent.h"
 #include "GBuffer.h"
 #include "Material.h"
+#include "AssetManager.h"
 
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 
-constexpr Color backgroundColor(0.2f, 0.2f, 0.2f);
-//constexpr Color backgroundColor(0.f, 0.f, 0.f);
+constexpr Color kBackgroundColor(0.2f, 0.2f, 0.2f);
+constexpr Color kDebugBackgroundColor(0.f, 0.f, 0.f);
 
 SimpleEngine::RenderSystem::RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight)
 {
@@ -67,6 +68,24 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), IID_PPV_ARGS_Helper(mBackBuffer.GetAddressOf()));	// __uuidof(ID3D11Texture2D)
 	mDevice->CreateRenderTargetView(mBackBuffer.Get(), nullptr, mRenderTarget.GetAddressOf());
 
+	InitDepthBuffer();
+
+	D3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+
+	InitFrameConstBuffer();
+
+	InitBlendState();
+
+	InitDepthStencilStateOff();
+
+	mGBuffer = std::make_unique<GBuffer>(mViewport);
+	mGBuffer->Init(mDevice);
+}
+
+void SimpleEngine::RenderSystem::InitDepthBuffer()
+{
 	D3D11_TEXTURE2D_DESC depthTexDesc = {};
 	depthTexDesc.ArraySize = 1;
 	depthTexDesc.MipLevels = 1;
@@ -75,11 +94,11 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 	depthTexDesc.CPUAccessFlags = 0;
 	depthTexDesc.MiscFlags = 0;
 	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthTexDesc.Width = mViewport.width;
-	depthTexDesc.Height = mViewport.height;
+	depthTexDesc.Width = static_cast<UINT>(mViewport.width);
+	depthTexDesc.Height = static_cast<UINT>(mViewport.height);
 	depthTexDesc.SampleDesc = { 1, 0 };
 
-	res = mDevice->CreateTexture2D(&depthTexDesc, nullptr, &mDepthStencilBuffer);
+	auto res = mDevice->CreateTexture2D(&depthTexDesc, nullptr, &mDepthStencilBuffer);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -87,20 +106,44 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	res = mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &depthStencilViewDesc, mDepthStencilView.GetAddressOf());
+}
 
-	D3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
+void SimpleEngine::RenderSystem::InitDepthStencilStateOff()
+{
+	D3D11_DEPTH_STENCIL_DESC stateDesc = {};
+	stateDesc.DepthEnable = false;
 
-	InitFrameConstBuffer();
+	mDevice->CreateDepthStencilState(&stateDesc, mDepthStencilStateOff.GetAddressOf());
+}
 
-	mGBuffer = std::make_unique<GBuffer>(mViewport);
-	mGBuffer->Init(mDevice);
+void SimpleEngine::RenderSystem::InitBlendState()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	mDevice->CreateBlendState(&blendDesc, mBlendState.GetAddressOf());
 }
 
 void SimpleEngine::RenderSystem::PrepareFrame()
 {
-	mContext->ClearRenderTargetView(mRenderTarget.Get(), backgroundColor);
+	switch (mDebugFlag)
+	{
+	case SimpleEngine::RenderSystem::DebugFlag::None:
+		mContext->ClearRenderTargetView(mRenderTarget.Get(), kBackgroundColor);
+		break;
+	default:
+		mContext->ClearRenderTargetView(mRenderTarget.Get(), kDebugBackgroundColor);
+		break;
+	}
+	
 	mContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	mGBuffer->Clear(mContext);
 }
@@ -109,8 +152,41 @@ void SimpleEngine::RenderSystem::Draw()
 {
 	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
 	mContext->PSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
-	mGBuffer->SetAsTarget(mContext);
-	//mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+	
+	mGBuffer->Unbind(mContext);
+
+	ID3D11RenderTargetView* rtvs[] = { nullptr, nullptr, nullptr, nullptr};
+	switch (mDebugFlag)
+	{
+	case RenderSystem::DebugFlag::WorldPosition:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
+		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		break;
+
+	case RenderSystem::DebugFlag::Normals:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
+		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		break;
+
+	case RenderSystem::DebugFlag::Albedo:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
+		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		break;
+
+	case RenderSystem::DebugFlag::MetallicRoughnessAO:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
+		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		break;
+
+	default:
+		mGBuffer->SetAsTarget(mContext);
+		break;
+	}
+	
 
 	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
 	{
@@ -127,11 +203,64 @@ void SimpleEngine::RenderSystem::Draw()
 		}
 	}
 
+	mGBuffer->UnbindLighting(mContext);
+
+	switch (mDebugFlag)
+	{
+	case RenderSystem::DebugFlag::None:
+		mGBuffer->SetLightingTarget(mContext);
+		break;
+	case RenderSystem::DebugFlag::Lighting:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+		break;
+	default:
+		break;
+	}
+
+	mContext->OMSetDepthStencilState(mDepthStencilStateOff.Get(), 0);
+
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT sampleMask = 0xffffffff;
+
+	mContext->OMSetBlendState(mBlendState.Get(), blendFactor, sampleMask);
+
 	mGBuffer->Bind(mContext);
 
-	mContext->RSSetViewports(1, mViewport.Get11());
-	mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+	//TODO RenderLight
+	for (auto it = mDirectionalLightComponents.begin(); it < mDirectionalLightComponents.end(); )
+	{
+		auto dirLight = it->lock();
+
+		if (dirLight)
+		{
+			dirLight->Draw(mContext);
+			it++;
+		}
+		else
+		{
+			it = mDirectionalLightComponents.erase(it);
+		}
+	}
+
+	mContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+
+	switch (mDebugFlag)
+	{
+	case SimpleEngine::RenderSystem::DebugFlag::None:
+		mContext->RSSetViewports(1, mViewport.Get11());
+		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+		mGBuffer->BindLighting(mContext);
+
+		AssetManager::GetInstance()->GetDefaultColorPassMaterial()->Bind(mContext);
+		mContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		mContext->Draw(4, 0);
+		break;
+	default:
+		break;
+	}
 	
+	mContext->OMSetDepthStencilState(nullptr, 0);
 
 	/*/
 	mDirectionalLightComponents[0].lock()->Bind(mContext);
@@ -182,6 +311,13 @@ void SimpleEngine::RenderSystem::AddRenderComponent(std::shared_ptr<RenderCompon
 void SimpleEngine::RenderSystem::AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent)
 {
 	mDirectionalLightComponents.emplace_back(lightComponent);
+}
+
+void SimpleEngine::RenderSystem::SetDebugFlag(DebugFlag flag)
+{
+	if (mDebugFlag != flag) {
+		mDebugFlag = flag;
+	}
 }
 
 void SimpleEngine::RenderSystem::InitFrameConstBuffer()

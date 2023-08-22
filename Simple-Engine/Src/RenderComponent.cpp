@@ -6,6 +6,12 @@
 
 #include "Material.h"
 #include "Mesh.h"
+#include "AssetManager.h"
+
+SimpleEngine::RenderComponent::RenderComponent():
+	mMaterial(AssetManager::GetInstance()->GetDefaultMaterial())
+{
+}
 
 SimpleEngine::RenderComponent::RenderComponent(std::shared_ptr<Material> material):
 	mMaterial(material)

@@ -11,6 +11,7 @@ namespace SimpleEngine
 	class RenderComponent : public SceneComponent
 	{
 	public:
+		RenderComponent();
 		explicit RenderComponent(std::shared_ptr<Material> material);
 
 		// Inherited via Component

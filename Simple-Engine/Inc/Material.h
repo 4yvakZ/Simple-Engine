@@ -11,9 +11,15 @@ namespace SimpleEngine {
 	class Material
 	{
 	public:
+		enum class Type {
+			Opacue,
+			Light,
+			ColorPass
+		};
+
 		Material();
 
-		void Init(Microsoft::WRL::ComPtr<ID3D11Device> device);
+		void Init();
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
@@ -23,6 +29,8 @@ namespace SimpleEngine {
 		void SetVSFileName(const std::string& VSFileName);
 		std::string VSFileName() const;
 
+		void SetType(Type type);
+		Type GetType() const;
 		bool IsDeferred() const;
 
 	private:
@@ -34,7 +42,7 @@ namespace SimpleEngine {
 		std::string mPSFileName;
 		std::string mVSFileName;
 
-		bool mIsDeferred = true;
+		Type mType = Type::Opacue;
 
 		// Textures
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAlbedoMap;

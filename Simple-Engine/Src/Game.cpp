@@ -5,6 +5,7 @@
 #include "InputDevice.h"
 #include "CameraComponent.h"
 #include "Utils.h"
+#include "AssetManager.h"
 
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
@@ -123,6 +124,8 @@ void SimpleEngine::Game::PrepareResources()
 	sRenderSystem = std::make_shared<RenderSystem>(hWnd, mClientWidth, mClientHeight);
 
 	sInputDevice = std::make_shared<InputDevice>();
+
+	AssetManager::GetInstance()->Init();
 }
 
 void SimpleEngine::Game::Update(float deltaTime)
@@ -157,6 +160,25 @@ void SimpleEngine::Game::UpdateInternal()
 
 		sRenderSystem->Update(frameConstBufferData);
 	} 
+
+	if (sInputDevice->IsKeyDown(Keys::F1)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::None);
+	}
+	if (sInputDevice->IsKeyDown(Keys::F2)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::WorldPosition);
+	}
+	if (sInputDevice->IsKeyDown(Keys::F3)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::Normals);
+	}
+	if (sInputDevice->IsKeyDown(Keys::F4)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::Albedo);
+	}
+	if (sInputDevice->IsKeyDown(Keys::F5)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::MetallicRoughnessAO);
+	}
+	if (sInputDevice->IsKeyDown(Keys::F6)) {
+		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::Lighting);
+	}
 }
 
 void SimpleEngine::Game::DestroyResources()

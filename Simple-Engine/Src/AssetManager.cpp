@@ -1,12 +1,43 @@
 #include "pch.h"
 #include "AssetManager.h"
 #include "Mesh.h"
+#include "Material.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags  
 
 using namespace DirectX::SimpleMath;
+
+std::shared_ptr<SimpleEngine::AssetManager> SimpleEngine::AssetManager::sInstance = nullptr;
+
+const std::string kDefaultLightPSName = "../shaders/DefaultDeferredLightPS.hlsl";
+const std::string kDefaultLightVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
+
+const std::string kDefaultColorPassPSName = "../shaders/DefaultDeferredColorPassPS.hlsl";
+const std::string kDefaultColorPassVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
+
+SimpleEngine::AssetManager::AssetManager()
+{
+	mDefaultMaterial = std::make_shared<Material>();
+
+	mDefaultDirectLightMaterial = std::make_shared<Material>();
+	mDefaultDirectLightMaterial->SetPSFileName(kDefaultLightPSName);
+	mDefaultDirectLightMaterial->SetVSFileName(kDefaultLightVSName);
+	mDefaultDirectLightMaterial->SetType(Material::Type::Light);
+
+	mDefaultColorPassMaterial = std::make_shared<Material>();
+	mDefaultColorPassMaterial->SetPSFileName(kDefaultColorPassPSName);
+	mDefaultColorPassMaterial->SetVSFileName(kDefaultColorPassVSName);
+	mDefaultColorPassMaterial->SetType(Material::Type::ColorPass);
+}
+
+void SimpleEngine::AssetManager::Init()
+{
+	mDefaultColorPassMaterial->Init();
+	mDefaultDirectLightMaterial->Init();
+	mDefaultMaterial->Init();
+}
 
 std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::ImportMeshes(std::string modelFileName)
 {
@@ -36,6 +67,29 @@ std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::Imp
 	SearchNode(scene, scene->mRootNode, meshes);
 
 	return meshes;
+}
+
+std::shared_ptr<SimpleEngine::AssetManager> SimpleEngine::AssetManager::GetInstance()
+{
+	if (!sInstance) {
+		sInstance = std::make_shared<AssetManager>();
+	}
+	return sInstance;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultMaterial()
+{
+	return mDefaultMaterial;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultLightMaterial()
+{
+	return mDefaultDirectLightMaterial;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultColorPassMaterial()
+{
+	return mDefaultColorPassMaterial;
 }
 
 void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, std::vector<std::shared_ptr<Mesh>>& meshes)

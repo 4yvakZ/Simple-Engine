@@ -13,15 +13,11 @@ using namespace DirectX::SimpleMath;
 
 void MyGameObject::Init()
 {
-	std::shared_ptr<Material> material = std::make_shared<Material>();
-	auto device = Game::GetRenderSystem()->getDevice();
-	material->Init(device);
-
 	//mSpriteComponent = CreateComponent<SpriteComponent>(material);
 
-	auto meshes = AssetManager::ImportMeshes("../assets/sphere.fbx");
+	auto meshes = AssetManager::GetInstance()->ImportMeshes("../assets/sphere.fbx");
 
-	mMeshComponent = CreateComponent<MeshComponent>(material, meshes[0]);
+	mMeshComponent = CreateComponent<MeshComponent>(meshes[0]);
 
 	GameObject::Init();
 }

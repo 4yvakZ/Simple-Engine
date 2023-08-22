@@ -3,6 +3,8 @@
 
 #include <DirectXTex.h>
 #include "Utils.h"
+#include "Game.h"
+#include "RenderSystem.h"
 
 const std::string kDefaultPSName = "../shaders/DefaultDeferredPS.hlsl";
 const std::string kDefaultVSName = "../shaders/DefaultDeferredVS.hlsl";
@@ -19,9 +21,11 @@ SimpleEngine::Material::Material():
 {
 }
 
-void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
+void SimpleEngine::Material::Init()
 {
 	using namespace DirectX::SimpleMath;
+	auto device = Game::GetRenderSystem()->getDevice();
+
 	D3D_SHADER_MACRO shaderMacros[] = {nullptr, nullptr };
 
 	ID3DBlob* errorVertexCode = nullptr;
@@ -177,8 +181,18 @@ void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	
 	context->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 
-	ID3D11ShaderResourceView* SRVs[] = { mAlbedoMap.Get(), mNormalMap.Get(), mMetallicRoughnessAOMap.Get()};
-	context->PSSetShaderResources(1, 3, SRVs);
+	ID3D11ShaderResourceView* SRVs[] = { mAlbedoMap.Get(), mNormalMap.Get(), mMetallicRoughnessAOMap.Get() };
+	switch (mType)
+	{
+	case SimpleEngine::Material::Type::Opacue:
+		context->PSSetShaderResources(1, 3, SRVs);
+		break;
+	case SimpleEngine::Material::Type::Light:
+		break;
+	default:
+		break;
+	}
+	
 }
 
 void SimpleEngine::Material::SetPSFileName(const std::string& PSFileName)
@@ -201,9 +215,19 @@ std::string SimpleEngine::Material::VSFileName() const
 	return mVSFileName;
 }
 
+void SimpleEngine::Material::SetType(Type type)
+{
+	mType = type;
+}
+
+SimpleEngine::Material::Type SimpleEngine::Material::GetType() const
+{
+	return mType;
+}
+
 bool SimpleEngine::Material::IsDeferred() const
 {
-	return mIsDeferred;
+	return mType == Type::Opacue;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName)

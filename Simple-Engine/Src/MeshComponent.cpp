@@ -3,7 +3,13 @@
 #include "Mesh.h"
 #include "Material.h"
 
-SimpleEngine::MeshComponent::MeshComponent(std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh):
+SimpleEngine::MeshComponent::MeshComponent(std::shared_ptr<Mesh> mesh):
+	RenderComponent(),
+	mMesh(mesh)
+{
+}
+
+SimpleEngine::MeshComponent::MeshComponent(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material):
 	RenderComponent(material),
 	mMesh(mesh)
 {

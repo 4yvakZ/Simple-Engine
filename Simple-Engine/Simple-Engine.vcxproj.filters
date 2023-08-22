@@ -150,8 +150,9 @@
     <FxCompile Include="Shaders\DefaultDeferredVS.hlsl" />
     <FxCompile Include="Shaders\DefaultForwardPS.hlsl" />
     <FxCompile Include="Shaders\DefaultForwardVS.hlsl" />
-    <FxCompile Include="Shaders\DefaultDeferredLightVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultAlignedQuadVS.hlsl" />
     <FxCompile Include="Shaders\DefaultDeferredLightPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredColorPassPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Src\Delegates.natvis" />

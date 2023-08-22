@@ -18,7 +18,7 @@ struct PS_IN
     float3x3 TBN : TANGENT_TRANSFORM;
 };
 
-struct LIGHT_PS_IN
+struct ALIGNED_QUAD_PS_IN
 {
     float4 pos : SV_Position;
     float2 uv : TEXCOORD0;
@@ -61,3 +61,4 @@ Texture2D<float4> WorldPosTex : register(t0);
 Texture2D<float4> AlbedoMap : register(t1);
 Texture2D<float4> NormalMap : register(t2);
 Texture2D<float4> MetallicRoughnessAOMap : register(t3);
+Texture2D<float4> LightMap : register(t4);

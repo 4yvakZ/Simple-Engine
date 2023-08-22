@@ -3,6 +3,8 @@
 
 #include "Game.h"
 #include "RenderSystem.h"
+#include "Material.h"
+#include "AssetManager.h"
 
 using namespace DirectX::SimpleMath;
 constexpr Vector4 kDefaultLightDirection =  Vector4 (-1, -1, -1, 0);
@@ -13,6 +15,7 @@ SimpleEngine::DirectionalLightComponent::DirectionalLightComponent()
 	mLightConstBufferData.mDirection = kDefaultLightDirection;
 	mLightConstBufferData.mDirection.Normalize();
 	mLightConstBufferData.mIntensity = kDefaultLightIntensity;
+	mMaterial = AssetManager::GetInstance()->GetDefaultLightMaterial();
 }
 
 void SimpleEngine::DirectionalLightComponent::Init()
@@ -37,6 +40,15 @@ void SimpleEngine::DirectionalLightComponent::Bind(Microsoft::WRL::ComPtr<ID3D11
 	context->PSSetConstantBuffers(2, 1, mLightConstBuffer.GetAddressOf());
 }
 
+void SimpleEngine::DirectionalLightComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+	mMaterial->Bind(context);
+	Bind(context);
+	context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	context->Draw(4, 0);
+}
+
 DirectX::SimpleMath::Vector4 SimpleEngine::DirectionalLightComponent::GetLightDirection() const
 {
 	return mLightConstBufferData.mDirection;
@@ -55,6 +67,16 @@ DirectX::SimpleMath::Vector4 SimpleEngine::DirectionalLightComponent::GetLightIn
 void SimpleEngine::DirectionalLightComponent::SetLightIntensity(DirectX::SimpleMath::Vector4 lightIntensity)
 {
 	mLightConstBufferData.mIntensity = lightIntensity;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::DirectionalLightComponent::GetMaterial() const
+{
+	return mMaterial;
+}
+
+void SimpleEngine::DirectionalLightComponent::SetMaterial(std::shared_ptr<Material> material)
+{
+	mMaterial = material;
 }
 
 void SimpleEngine::DirectionalLightComponent::InitLightConstBuffer()

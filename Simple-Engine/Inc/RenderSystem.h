@@ -6,6 +6,7 @@ namespace SimpleEngine {
 	class DirectionalLightComponent;
 	class RenderComponent;
 	class MeshRenderer;
+	class GBuffer;
 	
 	class RenderSystem
 	{
@@ -53,6 +54,8 @@ namespace SimpleEngine {
 		DirectX::SimpleMath::Viewport mViewport;
 
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRastState;
+
+		std::unique_ptr<GBuffer> mGBuffer;
 
 		//NOTE possible optimization point (CPU cahce)
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;

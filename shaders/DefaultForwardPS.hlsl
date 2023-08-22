@@ -16,9 +16,10 @@ float4 main(PS_IN input) : SV_Target
     normal = normalize(mul(normal, input.TBN));
     //return float4(normal, 1.0);
     
-    float metallic = MetallicMap.Sample(Sampler, input.uv);
-    float roughness = RoughnessMap.Sample(Sampler, input.uv);
-    float ao = AOMap.Sample(Sampler, input.uv);
+    float3 metallicRoughnessAO = MetallicRoughnessAOMap.Sample(Sampler, input.uv);
+    float metallic = metallicRoughnessAO.r;
+    float roughness = metallicRoughnessAO.g;
+    float ao = metallicRoughnessAO.b;
        
     float3 F0 = float3(0.04, 0.04, 0.04);
     F0 = lerp(F0, albedo, metallic);

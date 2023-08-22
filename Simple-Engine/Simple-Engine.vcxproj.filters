@@ -72,6 +72,9 @@
     <ClCompile Include="Src\DirectionalLightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\GBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Game.h">
@@ -134,14 +137,21 @@
     <ClInclude Include="Inc\DirectionalLightComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\GBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Shaders\ShadersStructs.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\DefaultPS.hlsl" />
-    <FxCompile Include="Shaders\DefaultVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultForwardPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultForwardVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredLightVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredLightPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Src\Delegates.natvis" />

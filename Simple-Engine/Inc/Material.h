@@ -23,7 +23,7 @@ namespace SimpleEngine {
 		void SetVSFileName(const std::string& VSFileName);
 		std::string VSFileName() const;
 
-		
+		bool IsDeferred() const;
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName);
@@ -34,12 +34,12 @@ namespace SimpleEngine {
 		std::string mPSFileName;
 		std::string mVSFileName;
 
+		bool mIsDeferred = true;
+
 		// Textures
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAlbedoMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mNormalMap;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetallicMap;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mRoughnessMap;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAOMap;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetallicRoughnessAOMap;
 
 
 		//DirectX

@@ -4,8 +4,8 @@
 #include <DirectXTex.h>
 #include "Utils.h"
 
-const std::string kDefaultPSName = "../shaders/DefaultPS.hlsl";
-const std::string kDefaultVSName = "../shaders/DefaultVS.hlsl";
+const std::string kDefaultPSName = "../shaders/DefaultDeferredPS.hlsl";
+const std::string kDefaultVSName = "../shaders/DefaultDeferredVS.hlsl";
 const std::string kDefaultAlbedoName = "../assets/debug.png";
 
 constexpr DirectX::SimpleMath::Vector3 kDefaultNormal = DirectX::SimpleMath::Vector3(0.5f, 0.5f, 1.0f);
@@ -158,10 +158,11 @@ void SimpleEngine::Material::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 
 	mAlbedoMap = InitTextureSRV(device, kDefaultAlbedoName);
 	mNormalMap = InitTextureSRV(device, ToVector4(kDefaultNormal, 0.0f));
-	//mNormalMap = InitTextureSRV(device, "../assets/testNormalMap.png");
-	mMetallicMap = InitTextureSRV(device, kDefaultMetallic);
+	mMetallicRoughnessAOMap = InitTextureSRV(device, Vector4(kDefaultMetallic, kDefaultRoughtness, kDefaultAO, 0));
+
+	/*mMetallicMap = InitTextureSRV(device, kDefaultMetallic);
 	mRoughnessMap = InitTextureSRV(device, kDefaultRoughtness);
-	mAOMap = InitTextureSRV(device, kDefaultAO);
+	mAOMap = InitTextureSRV(device, kDefaultAO);*/
 
 }
 
@@ -175,11 +176,9 @@ void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	context->PSSetShader(mPixelShader.Get(), nullptr, 0);
 	
 	context->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
-	context->PSSetShaderResources(0, 1, mAlbedoMap.GetAddressOf());
-	context->PSSetShaderResources(1, 1, mNormalMap.GetAddressOf());
-	context->PSSetShaderResources(2, 1, mMetallicMap.GetAddressOf());
-	context->PSSetShaderResources(3, 1, mRoughnessMap.GetAddressOf());
-	context->PSSetShaderResources(4, 1, mAOMap.GetAddressOf());
+
+	ID3D11ShaderResourceView* SRVs[] = { mAlbedoMap.Get(), mNormalMap.Get(), mMetallicRoughnessAOMap.Get()};
+	context->PSSetShaderResources(1, 3, SRVs);
 }
 
 void SimpleEngine::Material::SetPSFileName(const std::string& PSFileName)
@@ -200,6 +199,11 @@ void SimpleEngine::Material::SetVSFileName(const std::string& VSFileName)
 std::string SimpleEngine::Material::VSFileName() const
 {
 	return mVSFileName;
+}
+
+bool SimpleEngine::Material::IsDeferred() const
+{
+	return mIsDeferred;
 }
 
 Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName)

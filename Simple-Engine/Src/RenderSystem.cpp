@@ -2,6 +2,8 @@
 #include "RenderSystem.h"
 #include "RenderComponent.h"
 #include "DirectionalLightComponent.h"
+#include "GBuffer.h"
+#include "Material.h"
 
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
@@ -91,29 +93,54 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	InitFrameConstBuffer();
+
+	mGBuffer = std::make_unique<GBuffer>(mViewport);
+	mGBuffer->Init(mDevice);
 }
 
 void SimpleEngine::RenderSystem::PrepareFrame()
 {
 	mContext->ClearRenderTargetView(mRenderTarget.Get(), backgroundColor);
 	mContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
-	mContext->RSSetViewports(1, mViewport.Get11());
+	mGBuffer->Clear(mContext);
 }
 
 void SimpleEngine::RenderSystem::Draw()
 {
 	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
 	mContext->PSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
+	mGBuffer->SetAsTarget(mContext);
+	//mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
 
+	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
+	{
+		auto renderer = it->lock();
+
+		if (renderer)
+		{
+			renderer->Draw(mContext);
+			it++;
+		}
+		else
+		{
+			it = mRenderComponents.erase(it);
+		}
+	}
+
+	mGBuffer->Bind(mContext);
+
+	mContext->RSSetViewports(1, mViewport.Get11());
+	mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+	
+
+	/*/
 	mDirectionalLightComponents[0].lock()->Bind(mContext);
 
 	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
 	{
 		auto renderer = it->lock();
 
-		if (renderer) 
+		if (renderer && renderer->GetMaterial()->IsDeferred())
 		{
 			renderer->Draw(mContext);
 			it++;
@@ -122,7 +149,7 @@ void SimpleEngine::RenderSystem::Draw()
 		{
 			it = mRenderComponents.erase(it);
 		}
-	}
+	}*/
 }
 
 void SimpleEngine::RenderSystem::EndFrame()

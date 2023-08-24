@@ -28,9 +28,9 @@ void SimpleEngine::RenderComponent::Update()
 	UpdateObjectConstBuffer();
 }
 
-void SimpleEngine::RenderComponent::Construct()
+void SimpleEngine::RenderComponent::OnConstructed()
 {
-	Component::Construct();
+	Component::OnConstructed();
 
 	Game::GetRenderSystem()->AddRenderComponent(std::dynamic_pointer_cast<RenderComponent>(shared_from_this()));
 }

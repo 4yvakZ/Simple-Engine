@@ -21,7 +21,7 @@ namespace SimpleEngine
 
 		virtual void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context) = 0;
 
-		virtual void Construct() override;
+		virtual void OnConstructed() override;
 
 		std::shared_ptr<Material> GetMaterial() const;
 		void SetMaterial(std::shared_ptr<Material> material);

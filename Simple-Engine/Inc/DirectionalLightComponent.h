@@ -5,6 +5,7 @@
 namespace SimpleEngine 
 {
 	class Material;
+	class ShadowMap;
 
 	class DirectionalLightComponent : public Component
 	{
@@ -13,9 +14,14 @@ namespace SimpleEngine
 		// Inherited via LightComponentBase
 		void Init() override;
 		void Update() override;
-		void Construct() override;
+		void OnConstructed() override;
+
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 		void Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+
+		void BindShadowMap(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void SetShadowMapAsTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void ClearShadowMap(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
 		DirectX::SimpleMath::Vector4 GetLightDirection() const;
 		void SetLightDirection(DirectX::SimpleMath::Vector4 lightDirection);
@@ -26,14 +32,16 @@ namespace SimpleEngine
 		std::shared_ptr<Material> GetMaterial() const;
 		void SetMaterial(std::shared_ptr<Material> material);
 
+
 	private:
-		void InitLightConstBuffer();
+		void InitLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device);
 		void UpdateLightConstBuffer();
 	private:
 		LightConstBufferData mLightConstBufferData;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mLightConstBuffer;
 
 		std::shared_ptr<Material> mMaterial;
+		std::unique_ptr<ShadowMap> mShadowMap;
 	};
 }
 

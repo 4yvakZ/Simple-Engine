@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Component.h"
 
-void SimpleEngine::Component::Construct()
+void SimpleEngine::Component::OnConstructed()
 {
 }
 

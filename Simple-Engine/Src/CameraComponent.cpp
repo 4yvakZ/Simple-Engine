@@ -12,10 +12,10 @@ SimpleEngine::CameraComponent::CameraComponent() :
 {
 }
 
-void SimpleEngine::CameraComponent::Construct()
+void SimpleEngine::CameraComponent::OnConstructed()
 {
 	auto game = Game::GetInstance();
-	if (!game->GetActiveCameraComponent().lock())
+	if (!game->GetActiveCameraComponent())
 	{
 		game->SetActiveCameraComp(std::dynamic_pointer_cast<CameraComponent>(shared_from_this()));
 	}
@@ -36,32 +36,38 @@ void SimpleEngine::CameraComponent::Update()
 	int width = game->ClientWidth();
 	int height = game->ClientHeight();
 
+	mAspectRatio = static_cast<float>(width) / static_cast<float>(height);
+	mOrtHeight = height * 0.02f;
+	mOrtWidth = width * 0.02f;
+
+	mProjection = CreateProjection(mNearPlane, mFarPlane);
+}
+
+DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::CreateProjection(float nearPlane, float farPlane) const
+{
 	switch (mProjectionType)
 	{
 	case SimpleEngine::CameraComponent::ProjectionType::Perspective:
-		mAspectRatio = static_cast<float>(width) / static_cast<float>(height);
-
-		mProjection = Matrix::CreatePerspectiveFieldOfView(
+		return Matrix::CreatePerspectiveFieldOfView(
 			mFovAngle,
 			mAspectRatio,
-			mNearPlane,
-			mFarPlane
+			nearPlane,
+			farPlane
 		);
 		break;
 	case SimpleEngine::CameraComponent::ProjectionType::Orthographic:
-		mOrtHeight = height * 0.02f;
-		mOrtWidth = width * 0.02f;
-
-		mProjection = Matrix::CreateOrthographic(
+		return Matrix::CreateOrthographic(
 			mOrtWidth,
 			mOrtHeight,
-			mNearPlane,
-			mFarPlane
+			nearPlane,
+			farPlane
 		);
 		break;
 	default:
 		break;
 	}
+
+	
 }
 
 DirectX::SimpleMath::Matrix SimpleEngine::CameraComponent::GetViewProjection() const {
@@ -84,6 +90,16 @@ DirectX::SimpleMath::Vector3 SimpleEngine::CameraComponent::GetUp()
 {
 	auto transform = GetWorldTransform();
 	return Vector3::TransformNormal(Vector3::Up, transform.GetWorld());
+}
+
+float SimpleEngine::CameraComponent::GetFarPlane() const
+{
+	return mFarPlane;
+}
+
+float SimpleEngine::CameraComponent::GetNearPlane() const
+{
+	return mNearPlane;
 }
 
 float SimpleEngine::CameraComponent::GetFOVAngle() const

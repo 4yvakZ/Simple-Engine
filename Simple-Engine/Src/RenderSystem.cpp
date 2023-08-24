@@ -10,8 +10,7 @@
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 
-constexpr Color kBackgroundColor(0.2f, 0.2f, 0.2f);
-constexpr Color kDebugBackgroundColor(0.f, 0.f, 0.f);
+constexpr Color kBackgroundColor(0.f, 0.f, 0.f);
 
 SimpleEngine::RenderSystem::RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight)
 {
@@ -113,21 +112,27 @@ void SimpleEngine::RenderSystem::InitBlendState()
 
 void SimpleEngine::RenderSystem::PrepareFrame()
 {
-	switch (mDebugFlag)
-	{
-	case SimpleEngine::RenderSystem::DebugFlag::None:
-		mContext->ClearRenderTargetView(mRenderTarget.Get(), kBackgroundColor);
-		break;
-	default:
-		mContext->ClearRenderTargetView(mRenderTarget.Get(), kDebugBackgroundColor);
-		break;
-	}
-
+	mContext->ClearRenderTargetView(mRenderTarget.Get(), kBackgroundColor);
 	mGBuffer->Clear(mContext);
+	for (auto it = mDirectionalLightComponents.begin(); it < mDirectionalLightComponents.end(); )
+	{
+		auto dirLight = it->lock();
+
+		if (dirLight)
+		{
+			dirLight->ClearShadowMap(mContext);
+			it++;
+		}
+		else
+		{
+			it = mDirectionalLightComponents.erase(it);
+		}
+	}
 }
 
 void SimpleEngine::RenderSystem::Draw()
 {
+	/// Rendering in GBuffer
 	mContext->VSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
 	mContext->PSSetConstantBuffers(0, 1, mFrameConstBuffer.GetAddressOf());
 	
@@ -165,13 +170,13 @@ void SimpleEngine::RenderSystem::Draw()
 		break;
 	}
 	
-
 	for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
 	{
 		auto renderer = it->lock();
 
 		if (renderer)
 		{
+			renderer->GetMaterial()->Bind(mContext);
 			renderer->Draw(mContext);
 			it++;
 		}
@@ -180,6 +185,38 @@ void SimpleEngine::RenderSystem::Draw()
 			it = mRenderComponents.erase(it);
 		}
 	}
+
+	///Rendering ShadowMaps
+	for (auto it = mDirectionalLightComponents.begin(); it < mDirectionalLightComponents.end(); )
+	{
+		auto dirLight = it->lock();
+
+		if (dirLight)
+		{
+			dirLight->SetShadowMapAsTarget(mContext);
+			for (auto it = mRenderComponents.begin(); it < mRenderComponents.end(); )
+			{
+				auto renderer = it->lock();
+
+				if (renderer)
+				{
+					renderer->Draw(mContext);
+					it++;
+				}
+				else
+				{
+					it = mRenderComponents.erase(it);
+				}
+			}
+			it++;
+		}
+		else
+		{
+			it = mDirectionalLightComponents.erase(it);
+		}
+	}
+
+	///Rendering Lighting
 
 	mGBuffer->UnbindLighting(mContext);
 
@@ -205,13 +242,13 @@ void SimpleEngine::RenderSystem::Draw()
 
 	mGBuffer->Bind(mContext);
 
-	//TODO RenderLight
 	for (auto it = mDirectionalLightComponents.begin(); it < mDirectionalLightComponents.end(); )
 	{
 		auto dirLight = it->lock();
 
 		if (dirLight)
 		{
+			dirLight->BindShadowMap(mContext);
 			dirLight->Draw(mContext);
 			it++;
 		}
@@ -223,6 +260,7 @@ void SimpleEngine::RenderSystem::Draw()
 
 	mContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
 
+	///Finishing Deferred render by combining lighting with albedo and ambient
 	switch (mDebugFlag)
 	{
 	case SimpleEngine::RenderSystem::DebugFlag::None:
@@ -239,6 +277,8 @@ void SimpleEngine::RenderSystem::Draw()
 	}
 	
 	mContext->OMSetDepthStencilState(nullptr, 0);
+
+	/// Forward debug rendering
 
 	switch (mDebugFlag)
 	{
@@ -258,7 +298,7 @@ void SimpleEngine::RenderSystem::Draw()
 
 		if (renderer && renderer->GetMaterial()->IsDeferred())
 		{
-			renderer->Draw(mContext);
+			renderer->SetAsTarget(mContext);
 			it++;
 		} 
 		else

@@ -15,6 +15,7 @@ void SimpleEngine::GameObject::Init()
 	for (auto it = mComponents.begin(); it < mComponents.end(); it++)
 	{
 		(*it)->Init();
+		(*it)->SetOwner(shared_from_this());
 	}
 }
 

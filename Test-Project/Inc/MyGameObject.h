@@ -10,8 +10,7 @@ namespace SimpleEngine
 class MyGameObject : public SimpleEngine::GameObject
 {
 public:
-	explicit MyGameObject(std::shared_ptr<SimpleEngine::GameObject> parent = nullptr) :
-		SimpleEngine::GameObject(parent) {}
+	explicit MyGameObject(std:: string meshFileName = "../assets/sphere.fbx", std::shared_ptr<SimpleEngine::GameObject> parent = nullptr);
 
 	virtual void Init() override;
 	virtual void Update(float deltaTime) override;

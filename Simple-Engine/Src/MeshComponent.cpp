@@ -21,7 +21,7 @@ void SimpleEngine::MeshComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContex
 	UINT strides[] = { sizeof(VertexData) };
 	UINT offsets[] = { 0 };
 
-	GetMaterial()->Bind(context);
+	//GetMaterial()->Bind(context);
 
 	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->IASetIndexBuffer(GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0);

@@ -11,14 +11,16 @@
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
 
-void MyGameObject::Init()
+MyGameObject::MyGameObject(std::string meshFileName, std::shared_ptr<SimpleEngine::GameObject> parent) :
+	SimpleEngine::GameObject(parent)
 {
-	//mSpriteComponent = CreateComponent<SpriteComponent>(material);
-
-	auto meshes = AssetManager::GetInstance()->ImportMeshes("../assets/sphere.fbx");
+	auto meshes = AssetManager::GetInstance()->ImportMeshes(meshFileName);
 
 	mMeshComponent = CreateComponent<MeshComponent>(meshes[0]);
+}
 
+void MyGameObject::Init()
+{
 	GameObject::Init();
 }
 

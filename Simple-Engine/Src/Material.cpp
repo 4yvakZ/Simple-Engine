@@ -29,6 +29,16 @@ SimpleEngine::Material::Material(const Material& other):
 
 }
 
+SimpleEngine::Material& SimpleEngine::Material::operator=(const Material& other)
+{
+	if (&other != this) {
+		mPSFileName = other.mPSFileName;
+		mVSFileName = other.mVSFileName;
+		mType = other.mType;
+	}
+	return *this;
+}
+
 
 void SimpleEngine::Material::Init()
 {
@@ -37,73 +47,7 @@ void SimpleEngine::Material::Init()
 
 	D3D_SHADER_MACRO shaderMacros[] = {nullptr, nullptr };
 
-	ID3DBlob* errorVertexCode = nullptr;
-	std::wstring VSFileName(mVSFileName.begin(), mVSFileName.end());
-	auto res = D3DCompileFromFile(VSFileName.c_str(),
-		shaderMacros /*macros*/,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"main",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		mVertexShaderByteCode.GetAddressOf(),
-		&errorVertexCode);
-	if (FAILED(res)) {
-		// If the shader failed to compile it should have written something to the error message.
-		if (errorVertexCode) {
-			char* compileErrors = (char*)(errorVertexCode->GetBufferPointer());
-
-			std::cout << compileErrors << std::endl;
-		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
-		else
-		{
-			std::cout << "Missing Shader File: " << mVSFileName << std::endl;
-		}
-
-		return;
-	}
-
-	///pixelShaderByteCode initialization
-	std::wstring PSFileName(mPSFileName.begin(), mPSFileName.end());
-	ID3DBlob* errorPixelCode;
-	res = D3DCompileFromFile(PSFileName.c_str(),
-		shaderMacros /*macros*/,
-		D3D_COMPILE_STANDARD_FILE_INCLUDE,
-		"main",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		mPixelShaderByteCode.GetAddressOf(),
-		&errorPixelCode);
-
-	if (FAILED(res)) {
-		// If the shader failed to compile it should have written something to the error message.
-		if (errorPixelCode) {
-			char* compileErrors = (char*)(errorPixelCode->GetBufferPointer());
-
-			std::cout << compileErrors << std::endl;
-		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
-		else
-		{
-			std::cout << "Missing Shader File: " << mPSFileName << std::endl;
-		}
-
-		return;
-	}
-
-	///vertexShader initialization
-	device->CreateVertexShader(
-		mVertexShaderByteCode->GetBufferPointer(),
-		mVertexShaderByteCode->GetBufferSize(),
-		nullptr, mVertexShader.GetAddressOf());
-
-	///pixelShader initialization
-	device->CreatePixelShader(
-		mPixelShaderByteCode->GetBufferPointer(),
-		mPixelShaderByteCode->GetBufferSize(),
-		nullptr, mPixelShader.GetAddressOf());
+	CompileShaders(device, shaderMacros);
 
 	///layout initialization
 	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
@@ -141,7 +85,7 @@ void SimpleEngine::Material::Init()
 			0}
 	};
 
-	res = device->CreateInputLayout(
+	auto res = device->CreateInputLayout(
 		inputElements,
 		std::size(inputElements),
 		mVertexShaderByteCode->GetBufferPointer(),
@@ -196,12 +140,77 @@ void SimpleEngine::Material::Init()
 	default:
 		break;
 	}
-	
+}
 
-	/*mMetallicMap = CreateTextureSRV(device, kDefaultMetallic);
-	mRoughnessMap = CreateTextureSRV(device, kDefaultRoughtness);
-	mAOMap = CreateTextureSRV(device, kDefaultAO);*/
+void SimpleEngine::Material::CompileShaders(Microsoft::WRL::ComPtr<ID3D11Device>& device, D3D_SHADER_MACRO* shaderMacros)
+{
+	ID3DBlob* errorVertexCode = nullptr;
+	std::wstring VSFileName(mVSFileName.begin(), mVSFileName.end());
+	auto res = D3DCompileFromFile(VSFileName.c_str(),
+	shaderMacros,
+	D3D_COMPILE_STANDARD_FILE_INCLUDE,
+	"main",
+	"vs_5_0",
+	D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	0,
+	mVertexShaderByteCode.GetAddressOf(),
+	&errorVertexCode);
+	if (FAILED(res)) {
+	// If the shader failed to compile it should have written something to the error message.
+	if (errorVertexCode) {
+	char* compileErrors = (char*)(errorVertexCode->GetBufferPointer());
 
+	std::cout << compileErrors << std::endl;
+	}
+	// If there was  nothing in the error message then it simply could not find the shader file itself.
+	else
+	{
+	std::cout << "Missing Shader File: " << mVSFileName << std::endl;
+	}
+
+	return;
+	}
+
+	///pixelShaderByteCode initialization
+	std::wstring PSFileName(mPSFileName.begin(), mPSFileName.end());
+	ID3DBlob* errorPixelCode;
+	res = D3DCompileFromFile(PSFileName.c_str(),
+	shaderMacros,
+	D3D_COMPILE_STANDARD_FILE_INCLUDE,
+	"main",
+	"ps_5_0",
+	D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	0,
+	mPixelShaderByteCode.GetAddressOf(),
+	&errorPixelCode);
+
+	if (FAILED(res)) {
+	// If the shader failed to compile it should have written something to the error message.
+	if (errorPixelCode) {
+	char* compileErrors = (char*)(errorPixelCode->GetBufferPointer());
+
+	std::cout << compileErrors << std::endl;
+	}
+	// If there was  nothing in the error message then it simply could not find the shader file itself.
+	else
+	{
+	std::cout << "Missing Shader File: " << mPSFileName << std::endl;
+	}
+
+	return;
+	}
+
+	///vertexShader initialization
+	device->CreateVertexShader(
+	mVertexShaderByteCode->GetBufferPointer(),
+	mVertexShaderByteCode->GetBufferSize(),
+	nullptr, mVertexShader.GetAddressOf());
+
+	///pixelShader initialization*/
+	device->CreatePixelShader(
+		mPixelShaderByteCode->GetBufferPointer(),
+		mPixelShaderByteCode->GetBufferSize(),
+		nullptr, mPixelShader.GetAddressOf());
 }
 
 void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
@@ -212,6 +221,7 @@ void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	///Set Vertex and Pixel Resources
 	context->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	context->PSSetShader(mPixelShader.Get(), nullptr, 0);
+	context->GSSetShader(nullptr, nullptr, 0);
 	
 	context->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 

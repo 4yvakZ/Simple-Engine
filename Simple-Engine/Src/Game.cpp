@@ -159,6 +159,7 @@ void SimpleEngine::Game::UpdateInternal()
 	FrameConstBufferData frameConstBufferData = {};
 	if (auto camera = mActiveCameraComp.lock()) {
 		frameConstBufferData.mCameraPos = ToVector4(camera->GetWorldTransform().GetPosition(), 1);
+		frameConstBufferData.mView = camera->GetView();
 		frameConstBufferData.mViewProjection = camera->GetViewProjection();
 	} 
 	sRenderSystem->Update(mDeltaTime, frameConstBufferData);
@@ -314,9 +315,9 @@ HWND SimpleEngine::Game::GetHWnd() const
 	return hWnd;
 }
 
-std::weak_ptr<CameraComponent> SimpleEngine::Game::GetActiveCameraComponent() const
+std::shared_ptr<CameraComponent> SimpleEngine::Game::GetActiveCameraComponent() const
 {
-	return mActiveCameraComp;
+	return mActiveCameraComp.lock();
 }
 
 void SimpleEngine::Game::SetActiveCameraComp(std::shared_ptr<CameraComponent> comp) {

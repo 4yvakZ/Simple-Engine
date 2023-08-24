@@ -11,7 +11,7 @@ namespace SimpleEngine
 		CameraComponent();
 
 		// Inherited via SceneComponent
-		virtual void Construct() override;
+		virtual void OnConstructed() override;
 		virtual void Init() override;
 		virtual void Update() override;
 
@@ -25,14 +25,20 @@ namespace SimpleEngine
 
 		DirectX::SimpleMath::Matrix GetView() const;
 		DirectX::SimpleMath::Matrix GetProjection() const;
+		DirectX::SimpleMath::Matrix CreateProjection(float nearPlane, float farPlane) const;
 		DirectX::SimpleMath::Matrix GetViewProjection() const;
 
 		DirectX::SimpleMath::Vector3 GetForward();
 		DirectX::SimpleMath::Vector3 GetRight();
 		DirectX::SimpleMath::Vector3 GetUp();
 
+		float GetFarPlane() const;
+		float GetNearPlane() const;
+
 		float GetFOVAngle() const;
 		void SetFOVAngle(float fovAngle);
+
+	private:
 
 	private:
 		ProjectionType mProjectionType = ProjectionType::Perspective;

@@ -20,7 +20,7 @@ namespace SimpleEngine
 
 		virtual void Update() = 0;
 
-		virtual void Construct();
+		virtual void OnConstructed();
 
 		void SetOwner(std::shared_ptr<GameObject> owner);
 

@@ -31,7 +31,7 @@ namespace SimpleEngine
 
 		HWND GetHWnd() const;
 
-		std::weak_ptr<CameraComponent> GetActiveCameraComponent() const;
+		std::shared_ptr<CameraComponent> GetActiveCameraComponent() const;
 		void SetActiveCameraComp(std::shared_ptr<CameraComponent> comp);
 
 		int ClientWidth();

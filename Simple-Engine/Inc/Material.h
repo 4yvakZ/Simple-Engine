@@ -19,12 +19,14 @@ namespace SimpleEngine
 		Material();
 
 		Material(const Material& other);
-		//Material& operator=(const Material& other);
+		Material& operator=(const Material& other);
 
 		//Material(Material&& other);
 		//Material& operator=(Material&& other);
 
 		void Init();
+
+		void CompileShaders(Microsoft::WRL::ComPtr<ID3D11Device>& device, D3D_SHADER_MACRO* shaderMacros);
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 		void UnbindResources(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);

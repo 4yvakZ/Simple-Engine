@@ -28,7 +28,7 @@ namespace SimpleEngine {
 
 		Microsoft::WRL::ComPtr <ID3D11Texture2D> mDepthBuffer;
 		Microsoft::WRL::ComPtr <ID3D11ShaderResourceView> mDepthSRV;
-		Microsoft::WRL::ComPtr <ID3D11DepthStencilView> mDepthView;
+		Microsoft::WRL::ComPtr <ID3D11DepthStencilView> mDepthStencilView;
 
 		Microsoft::WRL::ComPtr <ID3D11Texture2D> mPositionTexture;
 		Microsoft::WRL::ComPtr <ID3D11ShaderResourceView> mPositionSRV;

@@ -2,6 +2,7 @@
 #include "GBuffer.h"
 
 
+constexpr DirectX::SimpleMath::Color kBackgroundColor(0.f, 0.f, 0.f);
 
 SimpleEngine::GBuffer::GBuffer(DirectX::SimpleMath::Viewport viewport):
 	mViewport(viewport)
@@ -21,12 +22,12 @@ void SimpleEngine::GBuffer::Init(Microsoft::WRL::ComPtr<ID3D11Device> device)
 void SimpleEngine::GBuffer::Clear(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	using namespace DirectX::SimpleMath;
-	context->ClearRenderTargetView(mPositionRTV.Get(), Color(0, 0, 0, 0));
-	context->ClearRenderTargetView(mNormalRTV.Get(), Color(0, 0, 0, 0));
-	context->ClearRenderTargetView(mAlbedoRTV.Get(), Color(0, 0, 0, 0));
-	context->ClearRenderTargetView(mMetallicRoughtnessAORTV.Get(), Color(0, 0, 0, 0));
-	context->ClearRenderTargetView(mLightingRTV.Get(), Color(0, 0, 0, 0));
-	context->ClearDepthStencilView(mDepthView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearRenderTargetView(mPositionRTV.Get(), kBackgroundColor);
+	context->ClearRenderTargetView(mNormalRTV.Get(), kBackgroundColor);
+	context->ClearRenderTargetView(mAlbedoRTV.Get(), kBackgroundColor);
+	context->ClearRenderTargetView(mMetallicRoughtnessAORTV.Get(), kBackgroundColor);
+	context->ClearRenderTargetView(mLightingRTV.Get(), kBackgroundColor);
+	context->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void SimpleEngine::GBuffer::Unbind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
@@ -39,13 +40,13 @@ void SimpleEngine::GBuffer::SetAsTarget(Microsoft::WRL::ComPtr<ID3D11DeviceConte
 {
 	context->RSSetViewports(1, mViewport.Get11());
 
-	ID3D11RenderTargetView* rtvs[] = { mPositionRTV.Get(), mAlbedoRTV.Get(), mNormalRTV.Get(), mMetallicRoughtnessAORTV.Get()};
-	context->OMSetRenderTargets(4, rtvs, mDepthView.Get());
+	ID3D11RenderTargetView* rtvs[] = { mPositionRTV.Get(), mNormalRTV.Get(), mAlbedoRTV.Get(), mMetallicRoughtnessAORTV.Get()};
+	context->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
 }
 
 void SimpleEngine::GBuffer::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
-	ID3D11ShaderResourceView* srvs[] = { mPositionSRV.Get(), mNormalSRV.Get(), mAlbedoSRV.Get(), mMetallicRoughtnessAOSRV.Get() };
+	ID3D11ShaderResourceView* srvs[] = { mPositionSRV.Get(), mAlbedoSRV.Get(), mNormalSRV.Get(), mMetallicRoughtnessAOSRV.Get() };
 	context->PSSetShaderResources(0, 4, srvs);
 }
 
@@ -70,7 +71,7 @@ void SimpleEngine::GBuffer::BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 
 Microsoft::WRL::ComPtr<ID3D11DepthStencilView> SimpleEngine::GBuffer::GetDepthStencilView()
 {
-	return mDepthView;
+	return mDepthStencilView;
 }
 
 void SimpleEngine::GBuffer::InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Device> device)
@@ -104,7 +105,7 @@ void SimpleEngine::GBuffer::InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Devic
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	res = device->CreateShaderResourceView(mDepthBuffer.Get(), &shaderResourceViewDesc, mDepthSRV.GetAddressOf());
-	res = device->CreateDepthStencilView(mDepthBuffer.Get(), &depthStencilViewDesc, mDepthView.GetAddressOf());
+	res = device->CreateDepthStencilView(mDepthBuffer.Get(), &depthStencilViewDesc, mDepthStencilView.GetAddressOf());
 }
 
 void SimpleEngine::GBuffer::InitResource(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourseView, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView)

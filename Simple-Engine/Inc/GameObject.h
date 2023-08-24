@@ -57,8 +57,7 @@ namespace SimpleEngine
 		auto component = std::make_shared<T>(std::forward<Ts>(args)...);
 
 		mComponents.emplace_back(component);
-		component->SetOwner(shared_from_this());
-		component->Construct();
+		component->OnConstructed();
 		return component;
 	}
 }

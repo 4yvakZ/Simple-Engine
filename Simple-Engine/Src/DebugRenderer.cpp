@@ -136,7 +136,7 @@ void SimpleEngine::DebugRenderer::InitGridVertecis(std::vector<SimpleEngine::Ver
 	indecis.push_back(firstPointIndex + 4 * (nPoints - 1) - 1);
 	indecis.push_back(firstPointIndex + 3 * (nPoints - 1) - 1);
 
-	mIndexCounts[DebugShapeType::Grid] = indecis.size() - mStartIndexLocations[DebugShapeType::Grid] + 1;
+	mIndexCounts[DebugShapeType::Grid] = indecis.size() - mStartIndexLocations[DebugShapeType::Grid];
 }
 
 void SimpleEngine::DebugRenderer::InitVectorVertecis(std::vector<SimpleEngine::VertexData>& vertecis, std::vector<uint32_t>& indecis)

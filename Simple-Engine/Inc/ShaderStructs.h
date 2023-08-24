@@ -20,6 +20,7 @@ namespace SimpleEngine {
 
     struct FrameConstBufferData
     {
+        DirectX::SimpleMath::Matrix mView;
         DirectX::SimpleMath::Matrix mViewProjection;
         DirectX::SimpleMath::Vector4 mCameraPos;
     };
@@ -28,5 +29,10 @@ namespace SimpleEngine {
     {
         DirectX::SimpleMath::Vector4 mDirection;
         DirectX::SimpleMath::Vector4 mIntensity;
+    };
+
+    struct CascadeData {
+        DirectX::SimpleMath::Matrix mViewProjection[4];
+        float mDistances[4];
     };
 }

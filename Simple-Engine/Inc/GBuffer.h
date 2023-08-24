@@ -17,6 +17,8 @@ namespace SimpleEngine {
 		void SetLightingTarget(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 		void BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
+		Microsoft::WRL::ComPtr <ID3D11DepthStencilView> GetDepthStencilView();
+
 	private:
 		void InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Device> device);
 		void InitResource(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11Texture2D>& texture, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& shaderResourseView, Microsoft::WRL::ComPtr<ID3D11RenderTargetView>& renderTargetView);

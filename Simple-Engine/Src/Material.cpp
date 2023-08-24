@@ -21,6 +21,15 @@ SimpleEngine::Material::Material():
 {
 }
 
+SimpleEngine::Material::Material(const Material& other):
+	mPSFileName(other.mPSFileName),
+	mVSFileName(other.mVSFileName),
+	mType(other.mType)
+{
+
+}
+
+
 void SimpleEngine::Material::Init()
 {
 	using namespace DirectX::SimpleMath;
@@ -160,13 +169,38 @@ void SimpleEngine::Material::Init()
 
 	res = device->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf());
 
-	mAlbedoMap = InitTextureSRV(device, kDefaultAlbedoName);
-	mNormalMap = InitTextureSRV(device, ToVector4(kDefaultNormal, 0.0f));
-	mMetallicRoughnessAOMap = InitTextureSRV(device, Vector4(kDefaultMetallic, kDefaultRoughtness, kDefaultAO, 0));
+	switch (mType)
+	{
+	case SimpleEngine::MaterialType::Opacue:
+		if (!mAlbedoMapTexture)
+		{
+			mAlbedoMapTexture = CreateTexture(device, kDefaultAlbedoName);
+		}
+		mAlbedoMap = CreateTextureSRV(device, mAlbedoMapTexture);
+		mNormalMapTexture = CreateTexture(device, ToVector4(kDefaultNormal, 0.0f));
+		mNormalMap = CreateTextureSRV(device, mNormalMapTexture);
+		mMetallicRoughnessAOMapTexture = CreateTexture(device, Vector4(kDefaultMetallic, kDefaultRoughtness, kDefaultAO, 0));
+		mMetallicRoughnessAOMap = CreateTextureSRV(device, mMetallicRoughnessAOMapTexture);
+		break;
+	case SimpleEngine::MaterialType::Light:
+		break;
+	case SimpleEngine::MaterialType::ColorPass:
+		break;
+	case SimpleEngine::MaterialType::Debug:
+		if (!mAlbedoMapTexture)
+		{
+			mAlbedoMapTexture = CreateTexture(device, kDefaultAlbedoName);
+		}
+		mAlbedoMap = CreateTextureSRV(device, mAlbedoMapTexture);
+		break;
+	default:
+		break;
+	}
+	
 
-	/*mMetallicMap = InitTextureSRV(device, kDefaultMetallic);
-	mRoughnessMap = InitTextureSRV(device, kDefaultRoughtness);
-	mAOMap = InitTextureSRV(device, kDefaultAO);*/
+	/*mMetallicMap = CreateTextureSRV(device, kDefaultMetallic);
+	mRoughnessMap = CreateTextureSRV(device, kDefaultRoughtness);
+	mAOMap = CreateTextureSRV(device, kDefaultAO);*/
 
 }
 
@@ -184,15 +218,32 @@ void SimpleEngine::Material::Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> co
 	ID3D11ShaderResourceView* SRVs[] = { mAlbedoMap.Get(), mNormalMap.Get(), mMetallicRoughnessAOMap.Get() };
 	switch (mType)
 	{
-	case SimpleEngine::Material::Type::Opacue:
+	case SimpleEngine::MaterialType::Opacue:
 		context->PSSetShaderResources(1, 3, SRVs);
 		break;
-	case SimpleEngine::Material::Type::Light:
+	case SimpleEngine::MaterialType::Debug:
+		context->PSSetShaderResources(1, 1, SRVs);
 		break;
 	default:
 		break;
 	}
 	
+}
+
+void SimpleEngine::Material::UnbindResources(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
+{
+	ID3D11ShaderResourceView* nullSRVs[] = { nullptr, nullptr, nullptr };
+	switch (mType)
+	{
+	case SimpleEngine::MaterialType::Opacue:
+		context->PSSetShaderResources(1, 3, nullSRVs);
+		break;
+	case SimpleEngine::MaterialType::Debug:
+		context->PSSetShaderResources(1, 1, nullSRVs);
+		break;
+	default:
+		break;
+	}
 }
 
 void SimpleEngine::Material::SetPSFileName(const std::string& PSFileName)
@@ -215,50 +266,79 @@ std::string SimpleEngine::Material::VSFileName() const
 	return mVSFileName;
 }
 
-void SimpleEngine::Material::SetType(Type type)
+void SimpleEngine::Material::SetType(MaterialType type)
 {
 	mType = type;
 }
 
-SimpleEngine::Material::Type SimpleEngine::Material::GetType() const
+SimpleEngine::MaterialType SimpleEngine::Material::GetType() const
 {
 	return mType;
 }
 
 bool SimpleEngine::Material::IsDeferred() const
 {
-	return mType == Type::Opacue;
+	return mType == MaterialType::Opacue;
 }
 
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName)
+void SimpleEngine::Material::SetAlbedo(const std::string& albedoFileName)
+{
+	auto device = Game::GetRenderSystem()->getDevice();
+	mAlbedoMapTexture = CreateTexture(device, albedoFileName);
+}
+
+void SimpleEngine::Material::SetAlbedo(DirectX::SimpleMath::Color color)
+{
+	auto device = Game::GetRenderSystem()->getDevice();
+	mAlbedoMapTexture = CreateTexture(device, color);
+}
+
+Microsoft::WRL::ComPtr<ID3D11Texture2D> SimpleEngine::Material::CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName)
 {
 	std::wstring fileName(textureFileName.begin(), textureFileName.end());
-	DirectX::ScratchImage image;
+	DirectX::ScratchImage scratchImage;
 	HRESULT res;
 	if (_wcsicmp(fileName.c_str(), L".dds") == 0)
 	{
-		res = LoadFromDDSFile(fileName.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+		res = LoadFromDDSFile(fileName.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, scratchImage);
 	}
 	else if (_wcsicmp(fileName.c_str(), L".tga") == 0)
 	{
-		res = LoadFromTGAFile(fileName.c_str(), nullptr, image);
+		res = LoadFromTGAFile(fileName.c_str(), nullptr, scratchImage);
 	}
 	else if (_wcsicmp(fileName.c_str(), L".hdr") == 0)
 	{
-		res = LoadFromHDRFile(fileName.c_str(), nullptr, image);
+		res = LoadFromHDRFile(fileName.c_str(), nullptr, scratchImage);
 	}
 	else
 	{
-		res = LoadFromWICFile(fileName.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
+		res = LoadFromWICFile(fileName.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, scratchImage);
 	}
 
 	if (SUCCEEDED(res))
 	{
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SRV;
-		res = CreateShaderResourceView(device.Get(),
-			image.GetImages(), image.GetImageCount(),
-			image.GetMetadata(), SRV.GetAddressOf());
-		return SRV;
+		auto image = scratchImage.GetImage(0, 0, 0);
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.ArraySize = 1;
+		textureDesc.MipLevels = 1;
+		textureDesc.Format = image->format;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.Height = image->height;
+		textureDesc.Width = image->width;
+		textureDesc.SampleDesc = { 1,0 };
+
+		D3D11_SUBRESOURCE_DATA initData = {};
+		initData.pSysMem = image->pixels;
+		initData.SysMemPitch = image->rowPitch;
+
+		auto res = device->CreateTexture2D(&textureDesc, &initData, texture.GetAddressOf());
+
+		return texture;
 	}
 	else
 	{
@@ -267,7 +347,7 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTex
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const DirectX::SimpleMath::Color& color)
+Microsoft::WRL::ComPtr<ID3D11Texture2D> SimpleEngine::Material::CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const DirectX::SimpleMath::Color& color)
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 
@@ -288,20 +368,10 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTex
 
 	auto res = device->CreateTexture2D(&textureDesc, &initData, texture.GetAddressOf());
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC positionSRVDesc = {};
-	positionSRVDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	positionSRVDesc.Texture2D.MipLevels = 1;
-	positionSRVDesc.Texture2D.MostDetailedMip = 0;
-	positionSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SRV;
-
-	res = device->CreateShaderResourceView(texture.Get(), &positionSRVDesc, SRV.GetAddressOf());
-
-	return SRV;
+	return texture;
 }
 
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const float value)
+Microsoft::WRL::ComPtr<ID3D11Texture2D> SimpleEngine::Material::CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const float value)
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 
@@ -322,15 +392,22 @@ Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::InitTex
 
 	auto res = device->CreateTexture2D(&textureDesc, &initData, texture.GetAddressOf());
 
+	return texture;
+}
+
+Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SimpleEngine::Material::CreateTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11Texture2D> texture)
+{
+	D3D11_TEXTURE2D_DESC texDesc;
+	texture->GetDesc(&texDesc);
 	D3D11_SHADER_RESOURCE_VIEW_DESC positionSRVDesc = {};
-	positionSRVDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	positionSRVDesc.Format = texDesc.Format;
 	positionSRVDesc.Texture2D.MipLevels = 1;
 	positionSRVDesc.Texture2D.MostDetailedMip = 0;
 	positionSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> SRV;
 
-	res = device->CreateShaderResourceView(texture.Get(), &positionSRVDesc, SRV.GetAddressOf());
+	HRESULT res = device->CreateShaderResourceView(texture.Get(), &positionSRVDesc, SRV.GetAddressOf());
 
 	return SRV;
 }

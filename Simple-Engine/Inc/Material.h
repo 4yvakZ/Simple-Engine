@@ -1,27 +1,33 @@
 #pragma once
 
-namespace SimpleEngine {
+namespace SimpleEngine 
+{
 
-	enum class MaterialType {
-		Opaque,
-		Translucent,
-		Masked
+	enum class MaterialType
+	{
+		Opacue,
+		Light,
+		ColorPass,
+		Debug
 	};
 
 	class Material
 	{
 	public:
-		enum class Type {
-			Opacue,
-			Light,
-			ColorPass
-		};
+		
 
 		Material();
+
+		Material(const Material& other);
+		//Material& operator=(const Material& other);
+
+		//Material(Material&& other);
+		//Material& operator=(Material&& other);
 
 		void Init();
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
+		void UnbindResources(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 
 		void SetPSFileName(const std::string& PSFileName);
 		std::string PSFileName() const;
@@ -29,26 +35,32 @@ namespace SimpleEngine {
 		void SetVSFileName(const std::string& VSFileName);
 		std::string VSFileName() const;
 
-		void SetType(Type type);
-		Type GetType() const;
+		void SetType(MaterialType type);
+		MaterialType GetType() const;
 		bool IsDeferred() const;
 
-	private:
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName);
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const DirectX::SimpleMath::Color& color);
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> InitTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, const float value);
+		void SetAlbedo(const std::string& albedoFileName);
+		void SetAlbedo(DirectX::SimpleMath::Color color);
 
+	private:
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::string& textureFileName);
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const DirectX::SimpleMath::Color& color);
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> CreateTexture(Microsoft::WRL::ComPtr<ID3D11Device> device, const float value);
+
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureSRV(Microsoft::WRL::ComPtr<ID3D11Device> device, Microsoft::WRL::ComPtr<ID3D11Texture2D> texture);
 	private:
 		std::string mPSFileName;
 		std::string mVSFileName;
 
-		Type mType = Type::Opacue;
+		MaterialType mType = MaterialType::Opacue;
 
 		// Textures
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> mAlbedoMapTexture;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> mNormalMapTexture;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> mMetallicRoughnessAOMapTexture;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mAlbedoMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mNormalMap;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mMetallicRoughnessAOMap;
-
 
 		//DirectX
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputLayout;

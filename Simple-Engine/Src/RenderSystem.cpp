@@ -5,6 +5,7 @@
 #include "GBuffer.h"
 #include "Material.h"
 #include "AssetManager.h"
+#include "DebugRenderer.h"
 
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
@@ -68,7 +69,6 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), IID_PPV_ARGS_Helper(mBackBuffer.GetAddressOf()));	// __uuidof(ID3D11Texture2D)
 	mDevice->CreateRenderTargetView(mBackBuffer.Get(), nullptr, mRenderTarget.GetAddressOf());
 
-	InitDepthBuffer();
 
 	D3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
@@ -82,30 +82,9 @@ void SimpleEngine::RenderSystem::Init(HWND hWnd, int ClientWidth, int ClientHeig
 
 	mGBuffer = std::make_unique<GBuffer>(mViewport);
 	mGBuffer->Init(mDevice);
-}
 
-void SimpleEngine::RenderSystem::InitDepthBuffer()
-{
-	D3D11_TEXTURE2D_DESC depthTexDesc = {};
-	depthTexDesc.ArraySize = 1;
-	depthTexDesc.MipLevels = 1;
-	depthTexDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	depthTexDesc.CPUAccessFlags = 0;
-	depthTexDesc.MiscFlags = 0;
-	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthTexDesc.Width = static_cast<UINT>(mViewport.width);
-	depthTexDesc.Height = static_cast<UINT>(mViewport.height);
-	depthTexDesc.SampleDesc = { 1, 0 };
-
-	auto res = mDevice->CreateTexture2D(&depthTexDesc, nullptr, &mDepthStencilBuffer);
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	res = mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &depthStencilViewDesc, mDepthStencilView.GetAddressOf());
+	mDebugRenderer = DebugRenderer::GetInstance();
+	mDebugRenderer->Init(mDevice);
 }
 
 void SimpleEngine::RenderSystem::InitDepthStencilStateOff()
@@ -143,8 +122,7 @@ void SimpleEngine::RenderSystem::PrepareFrame()
 		mContext->ClearRenderTargetView(mRenderTarget.Get(), kDebugBackgroundColor);
 		break;
 	}
-	
-	mContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	mGBuffer->Clear(mContext);
 }
 
@@ -161,25 +139,25 @@ void SimpleEngine::RenderSystem::Draw()
 	case RenderSystem::DebugFlag::WorldPosition:
 		mContext->RSSetViewports(1, mViewport.Get11());
 		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
-		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(4, rtvs, mGBuffer->GetDepthStencilView().Get());
 		break;
 
 	case RenderSystem::DebugFlag::Normals:
 		mContext->RSSetViewports(1, mViewport.Get11());
 		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
-		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(4, rtvs, mGBuffer->GetDepthStencilView().Get());
 		break;
 
 	case RenderSystem::DebugFlag::Albedo:
 		mContext->RSSetViewports(1, mViewport.Get11());
 		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
-		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(4, rtvs, mGBuffer->GetDepthStencilView().Get());
 		break;
 
 	case RenderSystem::DebugFlag::MetallicRoughnessAO:
 		mContext->RSSetViewports(1, mViewport.Get11());
 		rtvs[static_cast<int>(mDebugFlag)] = mRenderTarget.Get();
-		mContext->OMSetRenderTargets(4, rtvs, mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(4, rtvs, mGBuffer->GetDepthStencilView().Get());
 		break;
 
 	default:
@@ -212,7 +190,7 @@ void SimpleEngine::RenderSystem::Draw()
 		break;
 	case RenderSystem::DebugFlag::Lighting:
 		mContext->RSSetViewports(1, mViewport.Get11());
-		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mGBuffer->GetDepthStencilView().Get());
 		break;
 	default:
 		break;
@@ -249,7 +227,7 @@ void SimpleEngine::RenderSystem::Draw()
 	{
 	case SimpleEngine::RenderSystem::DebugFlag::None:
 		mContext->RSSetViewports(1, mViewport.Get11());
-		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mDepthStencilView.Get());
+		mContext->OMSetRenderTargets(1, mRenderTarget.GetAddressOf(), mGBuffer->GetDepthStencilView().Get());
 		mGBuffer->BindLighting(mContext);
 
 		AssetManager::GetInstance()->GetDefaultColorPassMaterial()->Bind(mContext);
@@ -261,6 +239,15 @@ void SimpleEngine::RenderSystem::Draw()
 	}
 	
 	mContext->OMSetDepthStencilState(nullptr, 0);
+
+	switch (mDebugFlag)
+	{
+	case SimpleEngine::RenderSystem::DebugFlag::None:
+		mDebugRenderer->Draw(mContext);
+		break;
+	default:
+		break;
+	}
 
 	/*/
 	mDirectionalLightComponents[0].lock()->Bind(mContext);
@@ -288,8 +275,10 @@ void SimpleEngine::RenderSystem::EndFrame()
 	mSwapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
 
-void SimpleEngine::RenderSystem::Update(const FrameConstBufferData& frameBufferData)
+void SimpleEngine::RenderSystem::Update(float deltaTime, const FrameConstBufferData& frameBufferData)
 {
+	mDebugRenderer->Update(deltaTime);
+
 	mFrameConstBufferData = frameBufferData;
 	UpdateFrameConstBuffer();
 }

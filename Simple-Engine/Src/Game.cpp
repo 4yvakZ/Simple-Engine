@@ -6,19 +6,10 @@
 #include "CameraComponent.h"
 #include "Utils.h"
 #include "AssetManager.h"
+#include "DebugRenderer.h"
 
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
-
-#if defined(DEBUG) || defined(_DEBUG)
-bool Game::isCreating = false;
-#endif // defined(DEBUG) || defined(_DEBUG)
-
-std::shared_ptr<Game> Game::mInstance = nullptr;
-std::shared_ptr<RenderSystem> Game::sRenderSystem = nullptr;
-std::shared_ptr<InputDevice> Game::sInputDevice = nullptr;
-
-std::vector<std::weak_ptr<GameObject>> Game::sGameObjects = std::vector<std::weak_ptr<GameObject>>();
 
 LRESULT MainWndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
 	return SimpleEngine::Game::GetInstance()->MsgProc(hwnd, umessage, wparam, lparam);
@@ -107,12 +98,21 @@ SimpleEngine::Game::Game(int ClientWidth, int ClientHeight)
 
 void SimpleEngine::Game::Init()
 {
-	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
+	AssetManager::GetInstance()->Init();
+
+	//DebugRenderer::GetInstance()->Init(sRenderSystem->getDevice());
+
+	for (auto it = sGameObjects.begin(); it < sGameObjects.end();)
 	{
 		auto gameObject = it->lock();
 		if (gameObject)
 		{
 			gameObject->Init();
+			it++;
+		}
+		else
+		{
+			it = sGameObjects.erase(it);
 		}
 	}
 }
@@ -124,18 +124,21 @@ void SimpleEngine::Game::PrepareResources()
 	sRenderSystem = std::make_shared<RenderSystem>(hWnd, mClientWidth, mClientHeight);
 
 	sInputDevice = std::make_shared<InputDevice>();
-
-	AssetManager::GetInstance()->Init();
 }
 
 void SimpleEngine::Game::Update(float deltaTime)
 {
-	for (auto it = sGameObjects.begin(); it < sGameObjects.end(); it++)
+	for (auto it = sGameObjects.begin(); it < sGameObjects.end();)
 	{
 		auto gameObject = it->lock();
 		if (gameObject)
 		{
 			gameObject->Update(deltaTime);
+			it++;
+		}
+		else
+		{
+			it = sGameObjects.erase(it);
 		}
 	}
 }
@@ -153,13 +156,12 @@ void SimpleEngine::Game::UpdateInternal()
 {
 	mIsExitRequested = sInputDevice->IsKeyDown(Keys::Escape);
 
+	FrameConstBufferData frameConstBufferData = {};
 	if (auto camera = mActiveCameraComp.lock()) {
-		FrameConstBufferData frameConstBufferData = {};
 		frameConstBufferData.mCameraPos = ToVector4(camera->GetWorldTransform().GetPosition(), 1);
 		frameConstBufferData.mViewProjection = camera->GetViewProjection();
-
-		sRenderSystem->Update(frameConstBufferData);
 	} 
+	sRenderSystem->Update(mDeltaTime, frameConstBufferData);
 
 	if (sInputDevice->IsKeyDown(Keys::F1)) {
 		sRenderSystem->SetDebugFlag(RenderSystem::DebugFlag::None);
@@ -245,12 +247,12 @@ std::shared_ptr<SimpleEngine::InputDevice> SimpleEngine::Game::GetInputDevice()
 
 void SimpleEngine::Game::Run()
 {
-	PrepareResources();
+	//PrepareResources();
 
 	Init();
 
-	prevTime = std::chrono::steady_clock::now();
-	totalTime = 0;
+	mPrevTime = std::chrono::steady_clock::now();
+	mTotalTime = 0;
 	unsigned int frameCount = 0;
 
 	MSG msg;
@@ -273,17 +275,17 @@ void SimpleEngine::Game::Run()
 
 
 		auto	curTime = std::chrono::steady_clock::now();
-		deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - prevTime).count() / 1000000.0f;
-		prevTime = curTime;
+		mDeltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - mPrevTime).count() / 1000000.0f;
+		mPrevTime = curTime;
 
-		totalTime += deltaTime;
+		mTotalTime += mDeltaTime;
 		frameCount++;
 
-		if (totalTime > 1.0f)
+		if (mTotalTime > 1.0f)
 		{
-			float fps = frameCount / totalTime;
+			float fps = frameCount / mTotalTime;
 
-			totalTime -= 1.0f;
+			mTotalTime -= 1.0f;
 
 			WCHAR text[256];
 			swprintf_s(text, TEXT("FPS: %f"), fps);
@@ -294,7 +296,7 @@ void SimpleEngine::Game::Run()
 
 		UpdateInternal();
 
-		Update(deltaTime);
+		Update(mDeltaTime);
 
 		Draw();
 

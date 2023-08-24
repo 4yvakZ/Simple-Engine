@@ -68,6 +68,11 @@ void SimpleEngine::GBuffer::BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 	context->PSSetShaderResources(4, 1, mLightingSRV.GetAddressOf());
 }
 
+Microsoft::WRL::ComPtr<ID3D11DepthStencilView> SimpleEngine::GBuffer::GetDepthStencilView()
+{
+	return mDepthView;
+}
+
 void SimpleEngine::GBuffer::InitDepthResouces(Microsoft::WRL::ComPtr<ID3D11Device> device)
 {
 	D3D11_TEXTURE2D_DESC depthTexDesc = {};

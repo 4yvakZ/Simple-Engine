@@ -24,6 +24,11 @@ struct ALIGNED_QUAD_PS_IN
     float2 uv : TEXCOORD0;
 };
 
+struct DEBUG_PS_IN
+{
+    float4 pos : SV_Position;
+};
+
 struct GBuffer
 {
     float4 worldPos : SV_Target0;

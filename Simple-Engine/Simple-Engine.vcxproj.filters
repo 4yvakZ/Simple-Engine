@@ -75,6 +75,9 @@
     <ClCompile Include="Src\GBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\DebugRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Game.h">
@@ -140,6 +143,9 @@
     <ClInclude Include="Inc\GBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\DebugRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -153,6 +159,8 @@
     <FxCompile Include="Shaders\DefaultAlignedQuadVS.hlsl" />
     <FxCompile Include="Shaders\DefaultDeferredLightPS.hlsl" />
     <FxCompile Include="Shaders\DefaultDeferredColorPassPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDebugPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDebugVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Src\Delegates.natvis" />

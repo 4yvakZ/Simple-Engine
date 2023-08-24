@@ -3,7 +3,7 @@
 
 namespace SimpleEngine
 {
-	DirectionalLightComponent;
+	class DirectionalLightComponent;
 }
 
 class Sun : public SimpleEngine::GameObject

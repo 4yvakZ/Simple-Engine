@@ -9,13 +9,14 @@
 
 using namespace DirectX::SimpleMath;
 
-std::shared_ptr<SimpleEngine::AssetManager> SimpleEngine::AssetManager::sInstance = nullptr;
-
 const std::string kDefaultLightPSName = "../shaders/DefaultDeferredLightPS.hlsl";
 const std::string kDefaultLightVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
 
 const std::string kDefaultColorPassPSName = "../shaders/DefaultDeferredColorPassPS.hlsl";
 const std::string kDefaultColorPassVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
+
+const std::string kDefaultDebugPSName = "../shaders/DefaultDebugPS.hlsl";
+const std::string kDefaultDebugVSName = "../shaders/DefaultDebugVS.hlsl";
 
 SimpleEngine::AssetManager::AssetManager()
 {
@@ -24,19 +25,29 @@ SimpleEngine::AssetManager::AssetManager()
 	mDefaultDirectLightMaterial = std::make_shared<Material>();
 	mDefaultDirectLightMaterial->SetPSFileName(kDefaultLightPSName);
 	mDefaultDirectLightMaterial->SetVSFileName(kDefaultLightVSName);
-	mDefaultDirectLightMaterial->SetType(Material::Type::Light);
+	mDefaultDirectLightMaterial->SetType(MaterialType::Light);
 
 	mDefaultColorPassMaterial = std::make_shared<Material>();
 	mDefaultColorPassMaterial->SetPSFileName(kDefaultColorPassPSName);
 	mDefaultColorPassMaterial->SetVSFileName(kDefaultColorPassVSName);
-	mDefaultColorPassMaterial->SetType(Material::Type::ColorPass);
+	mDefaultColorPassMaterial->SetType(MaterialType::ColorPass);
+
+	mDefaultDebugMaterial = std::make_shared<Material>();
+	mDefaultDebugMaterial->SetPSFileName(kDefaultDebugPSName);
+	mDefaultDebugMaterial->SetVSFileName(kDefaultDebugVSName);
+	mDefaultDebugMaterial->SetType(MaterialType::Debug);
 }
 
 void SimpleEngine::AssetManager::Init()
 {
+	mDefaultDebugMaterial->Init();
 	mDefaultColorPassMaterial->Init();
 	mDefaultDirectLightMaterial->Init();
 	mDefaultMaterial->Init();
+
+	for (auto& material : mMaterials) {
+		material->Init();
+	}
 }
 
 std::vector<std::shared_ptr<SimpleEngine::Mesh>> SimpleEngine::AssetManager::ImportMeshes(std::string modelFileName)
@@ -77,6 +88,35 @@ std::shared_ptr<SimpleEngine::AssetManager> SimpleEngine::AssetManager::GetInsta
 	return sInstance;
 }
 
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::CreateMaterial(MaterialType materialType)
+{
+	std::shared_ptr<Material> material;
+	switch (materialType)
+	{
+	case SimpleEngine::MaterialType::Opacue:
+		material = std::make_shared<Material>(*(mDefaultMaterial.get()));
+		break;
+
+	case SimpleEngine::MaterialType::Light:
+		material =  std::make_shared<Material>(*(mDefaultDirectLightMaterial.get()));
+		break;
+
+	case SimpleEngine::MaterialType::ColorPass:
+		material = std::make_shared<Material>(*(mDefaultColorPassMaterial.get()));
+		break;
+
+	case SimpleEngine::MaterialType::Debug:
+		material = std::make_shared<Material>(*(mDefaultDebugMaterial.get()));
+		break;
+
+	default:
+		material = std::make_shared<Material>(*(mDefaultMaterial.get()));
+		break;
+	}
+	mMaterials.push_back(material);
+	return material;
+}
+
 std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultMaterial()
 {
 	return mDefaultMaterial;
@@ -90,6 +130,11 @@ std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultLi
 std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultColorPassMaterial()
 {
 	return mDefaultColorPassMaterial;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultDebugMaterial()
+{
+	return mDefaultDebugMaterial;
 }
 
 void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, std::vector<std::shared_ptr<Mesh>>& meshes)

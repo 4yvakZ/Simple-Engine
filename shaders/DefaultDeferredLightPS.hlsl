@@ -11,15 +11,15 @@ float4 main(ALIGNED_QUAD_PS_IN input) : SV_Target
 {
     uint width, height;
     WorldPosTex.GetDimensions(width, height);
-    uint2 pixelCoord = uint2(input.uv.x * width, input.uv.y * height);
+    int2 pixelCoord = int2(input.uv.x * width, input.uv.y * height);
     
-    float4 worldPos = WorldPosTex.Load(uint3(pixelCoord, 0));
+    float4 worldPos = WorldPosTex.Load(int3(pixelCoord, 0));
     
-    float3 albedo = AlbedoMap.Load(uint3(pixelCoord, 0));
+    float3 albedo = AlbedoMap.Load(int3(pixelCoord, 0));
     
-    float3 normal = NormalMap.Load(uint3(pixelCoord, 0));
+    float3 normal = NormalMap.Load(int3(pixelCoord, 0));
     
-    float3 metallicRoughnessAO = MetallicRoughnessAOMap.Load(uint3(pixelCoord, 0));
+    float3 metallicRoughnessAO = MetallicRoughnessAOMap.Load(int3(pixelCoord, 0));
     float metallic = metallicRoughnessAO.r;
     float roughness = metallicRoughnessAO.g;
        

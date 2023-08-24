@@ -95,6 +95,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)libs\include;$(SolutionDir)Simple-Engine\Inc;$(ProjectDir)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
       <AdditionalIncludeDirectories>$(SolutionDir)libs\include;$(SolutionDir)Simple-Engine\Inc;$(ProjectDir)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,6 +143,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
       <AdditionalIncludeDirectories>$(SolutionDir)libs\include;$(SolutionDir)Simple-Engine\Inc;$(ProjectDir)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,6 +167,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
       <AdditionalIncludeDirectories>$(SolutionDir)libs\include;$(SolutionDir)Simple-Engine\Inc;$(ProjectDir)Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -202,7 +206,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
     <ClInclude Include="Inc\Player.h" />
     <ClInclude Include="Inc\MyGameObject.h" />
     <ClInclude Include="Src\pch.h" />
-    <ClInclude Include="Src\Sun.h" />
+    <ClInclude Include="Inc\Sun.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -55,10 +55,10 @@ namespace SimpleEngine
 	private:
 
 #if defined(DEBUG) || defined(_DEBUG)
-		static bool isCreating;
+		static inline bool isCreating = false;
 #endif // defined(DEBUG) || defined(_DEBUG)
 
-		static std::shared_ptr<Game> mInstance;
+		static inline std::shared_ptr<Game> mInstance = nullptr;
 
 		int mClientWidth;
 		int mClientHeight;
@@ -67,19 +67,19 @@ namespace SimpleEngine
 
 		bool mIsExitRequested = false;
 
-		std::chrono::time_point<std::chrono::steady_clock> prevTime;
-		float totalTime;
-		float deltaTime;
+		std::chrono::time_point<std::chrono::steady_clock> mPrevTime;
+		float mTotalTime = 0;
+		float mDeltaTime = 0;
 
 		//std::unique_ptr<GameObject> RootObject;
 
 		std::weak_ptr<CameraComponent> mActiveCameraComp;
 
-		static std::shared_ptr<RenderSystem> sRenderSystem;
+		static inline std::shared_ptr<RenderSystem> sRenderSystem = nullptr;
 
-		static std::shared_ptr<InputDevice> sInputDevice;
+		static inline std::shared_ptr<InputDevice> sInputDevice = nullptr;
 
-		static std::vector<std::weak_ptr<GameObject>> sGameObjects;
+		static inline std::vector<std::weak_ptr<GameObject>> sGameObjects = std::vector<std::weak_ptr<GameObject>>();
 
 	public:
 		template<class T, class...Ts, class = std::enable_if_t<
@@ -105,6 +105,7 @@ namespace SimpleEngine
 #endif // defined(DEBUG) || defined(_DEBUG)
 		assert(("Only one instance of game can be created", mInstance == nullptr));
 		mInstance = std::make_shared<T>(std::forward<Ts>(Args)...);
+		mInstance->PrepareResources();
 		return mInstance;
 	}
 

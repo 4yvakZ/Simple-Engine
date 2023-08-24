@@ -44,7 +44,7 @@
     <ClInclude Include="Inc\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Sun.h">
+    <ClInclude Include="Inc\Sun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

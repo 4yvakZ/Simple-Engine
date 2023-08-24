@@ -7,6 +7,7 @@ namespace SimpleEngine {
 	class RenderComponent;
 	class MeshRenderer;
 	class GBuffer;
+	class DebugRenderer;
 	
 	class RenderSystem
 	{
@@ -27,17 +28,13 @@ namespace SimpleEngine {
 		RenderSystem operator=(const RenderSystem&) = delete;
 
 
-		virtual void Init(HWND hWnd, int ClientWidth, int ClientHeight);
-
-
-
 		virtual void PrepareFrame();
 
 		virtual void Draw();
 
 		virtual void EndFrame();
 
-		virtual void Update(const FrameConstBufferData& frameBufferData);
+		virtual void Update(float deltaTime, const FrameConstBufferData& frameBufferData);
 
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice();
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> getContext();
@@ -47,6 +44,9 @@ namespace SimpleEngine {
 		void AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent);
 
 		void SetDebugFlag(DebugFlag flag);
+
+	protected:
+		virtual void Init(HWND hWnd, int ClientWidth, int ClientHeight);
 
 	private:
 		void InitDepthBuffer();
@@ -74,19 +74,17 @@ namespace SimpleEngine {
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> mBackBuffer;
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTarget;
 
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
 		DirectX::SimpleMath::Viewport mViewport;
 
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRastState;
 
 		std::unique_ptr<GBuffer> mGBuffer;
+		std::shared_ptr<DebugRenderer> mDebugRenderer;
 
 		//NOTE possible optimization point (CPU cahce)
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;
 
 		std::vector<std::weak_ptr<DirectionalLightComponent>> mDirectionalLightComponents;
-
 
 		DebugFlag mDebugFlag = DebugFlag::None;
 	};

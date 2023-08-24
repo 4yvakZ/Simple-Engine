@@ -16,6 +16,7 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include <iostream>

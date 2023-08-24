@@ -7,6 +7,7 @@
 #include "Transform.h"
 #include "Player.h"
 #include "ShaderStructs.h"
+#include "DebugRenderer.h"
 
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
@@ -30,6 +31,10 @@ int main() {
 #endif
 	auto game = Game::CreateGameInstance<Game>();
 
+	auto debugRenderer = DebugRenderer::GetInstance();
+	debugRenderer->DrawDebugGrid(2);
+
+	
 
 	auto player = Game::CreateGameObject<Player>();
 
@@ -39,12 +44,17 @@ int main() {
 	auto myGameObject1 = Game::CreateGameObject<MyGameObject>();
 
 	Transform transform;
-	transform.SetPosition(Vector3(0, 0, 5));
+	transform.SetPosition(Vector3(0, 1, 5));
 	player->SetTransform(transform);
 	transform.SetPosition(Vector3(4, 0, 0));
 	//transform.SetScale(Vector3(1, 1, 4));
 	myGameObject1->SetTransform(transform);
 	myGameObject1->SetRotationSpeed(1);
+
+	transform.SetPosition(Vector3(2, 0, 2));
+	debugRenderer->DrawDebugBox(transform, Vector3(2, 3, 1), Color(1,1,0), 2);
+	transform.SetPosition(Vector3(2, 0, 0));
+	debugRenderer->DrawDebugSphere(transform, 0.5);
 
 	game->Run();
 }

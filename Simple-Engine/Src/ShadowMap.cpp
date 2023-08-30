@@ -8,8 +8,8 @@
 
 using namespace DirectX::SimpleMath;
 
-constexpr float kFarPlaneFraction[] = { 0.1, 0.2, 0.5, 1.0 };
-constexpr float kNearPlaneFraction[] = { 0.0, 0.1, 0.2, 0.0 };
+constexpr float kFarPlaneFraction[] = { 0.05, 0.15, 0.3, 1.0 };
+constexpr float kNearPlaneFraction[] = { 0.0, 0.05, 0.15, 0.0 };
 
 const std::string kDefaultShadowMapGSName = "../shaders/DefaultShadowMapGS.hlsl";
 const std::string kDefaultShadowMapVSName = "../shaders/DefaultShadowMapVS.hlsl";

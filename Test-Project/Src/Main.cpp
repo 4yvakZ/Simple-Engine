@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "ShaderStructs.h"
 #include "DebugRenderer.h"
+#include "Lamp.h"
 
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
@@ -35,34 +36,35 @@ int main() {
 	debugRenderer->DrawDebugGrid(2);
 
 	auto player = Game::CreateGameObject<Player>();
-
-	auto sun = Game::CreateGameObject<Sun>();
-	auto sun0 = Game::CreateGameObject<Sun>();
-	sun0->SetLightDirection(Vector3(1, -1.5, -1));
-
-	auto myGameObject = Game::CreateGameObject<MyGameObject>();
-	auto myGameObject1 = Game::CreateGameObject<MyGameObject>();
-	auto plane = Game::CreateGameObject<MyGameObject>("../assets/plane.fbx");
-
 	Transform transform;
 	transform.SetPosition(Vector3(0, 1, 5));
 	player->SetTransform(transform);
-	transform.SetPosition(Vector3(4, 1, 0));
-	//transform.SetScale(Vector3(1, 1, 4));
-	myGameObject1->SetTransform(transform);
-	myGameObject1->SetRotationSpeed(1);
-	transform.SetPosition(Vector3(0, 1, 0));
+	
+	auto sun = Game::CreateGameObject<Sun>();
+	//auto sun0 = Game::CreateGameObject<Sun>();
+	//sun0->SetLightDirection(Vector3(1, -1.5, -1));
+
+	auto myGameObject = Game::CreateGameObject<MyGameObject>();
+	transform.SetPosition(Vector3(2, 1, 0));
 	myGameObject->SetTransform(transform);
 
-	transform.SetPosition(Vector3(2, 0, 2));
-	debugRenderer->DrawDebugBox(transform, Vector3(2, 3, 1), Color(1,1,0), 2);
-	transform.SetPosition(Vector3(2, 0, 0));
-	debugRenderer->DrawDebugSphere(transform, 0.5);
+	auto myGameObject1 = Game::CreateGameObject<MyGameObject>();
+	transform.SetPosition(Vector3(-2, 2, 2));
+	myGameObject1->SetTransform(transform);
+	myGameObject1->SetRotationSpeed(1);
 
+	auto lamp = Game::CreateGameObject<Lamp>();
+	transform.SetPosition(Vector3(-1, 1, -3));
+	lamp->SetTransform(transform);
+
+	auto plane = Game::CreateGameObject<MyGameObject>("../assets/plane.fbx");
 	transform.SetPosition(Vector3(0, -1, 0));
 	transform.SetRotation(Quaternion::FromToRotation(Vector3::UnitZ, Vector3::UnitY));
 	transform.SetScale(Vector3(10, 10, 1));
 	plane->SetTransform(transform);
+
+	transform.SetPosition(Vector3(2, 0, 2));
+	debugRenderer->DrawDebugBox(transform, Vector3(2, 3, 1), Color(1,1,0), false, 2);
 
 	game->Run();
 }

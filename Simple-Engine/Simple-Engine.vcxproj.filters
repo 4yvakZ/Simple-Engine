@@ -81,6 +81,9 @@
     <ClCompile Include="Src\ShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Src\PointLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inc\Game.h">
@@ -152,6 +155,9 @@
     <ClInclude Include="Inc\ShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\PointLightComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -163,12 +169,14 @@
     <FxCompile Include="Shaders\DefaultForwardPS.hlsl" />
     <FxCompile Include="Shaders\DefaultForwardVS.hlsl" />
     <FxCompile Include="Shaders\DefaultAlignedQuadVS.hlsl" />
-    <FxCompile Include="Shaders\DefaultDeferredLightPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredPointLightPS.hlsl" />
     <FxCompile Include="Shaders\DefaultDeferredColorPassPS.hlsl" />
     <FxCompile Include="Shaders\DefaultDebugPS.hlsl" />
     <FxCompile Include="Shaders\DefaultDebugVS.hlsl" />
     <FxCompile Include="Shaders\DefaultShadowMapGS.hlsl" />
     <FxCompile Include="Shaders\DefaultShadowMapVS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredDirLightPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultDeferredPointLightVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Src\Delegates.natvis" />

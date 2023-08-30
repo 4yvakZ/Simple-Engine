@@ -45,7 +45,7 @@ void SimpleEngine::RenderComponent::SetMaterial(std::shared_ptr<Material> materi
 	mMaterial = material;
 }
 
-void SimpleEngine::RenderComponent::InitVertexBuffer(const std::vector<VertexData>& vertecis)
+void SimpleEngine::RenderComponent::InitVertexBuffer(const std::vector<Vertex>& vertices)
 {
 	auto device = Game::GetRenderSystem()->getDevice();
 	///vertix buffer initialization
@@ -55,17 +55,17 @@ void SimpleEngine::RenderComponent::InitVertexBuffer(const std::vector<VertexDat
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = static_cast<UINT>(sizeof(VertexData) * std::size(vertecis));
+	vertexBufDesc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * std::size(vertices));
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = vertecis.data();
+	vertexData.pSysMem = vertices.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
 	device->CreateBuffer(&vertexBufDesc, &vertexData, mVertexBuffer.GetAddressOf());
 }
 
-void SimpleEngine::RenderComponent::InitIndexBuffer(const std::vector<uint32_t>& indecis)
+void SimpleEngine::RenderComponent::InitIndexBuffer(const std::vector<uint32_t>& indices)
 {
 	auto device = Game::GetRenderSystem()->getDevice();
 	///indexBuffer initialization
@@ -75,10 +75,10 @@ void SimpleEngine::RenderComponent::InitIndexBuffer(const std::vector<uint32_t>&
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = static_cast<UINT>(sizeof(int) * std::size(indecis));
+	indexBufDesc.ByteWidth = static_cast<UINT>(sizeof(int) * std::size(indices));
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indecis.data();
+	indexData.pSysMem = indices.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 

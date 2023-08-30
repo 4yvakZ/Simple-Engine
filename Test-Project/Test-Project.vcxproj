@@ -183,6 +183,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Lamp.cpp" />
     <ClCompile Include="Src\Player.cpp" />
     <ClCompile Include="Src\MyGameObject.cpp" />
     <ClCompile Include="Src\pch.cpp">
@@ -205,6 +206,7 @@ xcopy /y /s "$(SolutionDir)libs\dlls\" "$(TargetDir)"</Command>
   <ItemGroup>
     <ClInclude Include="Inc\Player.h" />
     <ClInclude Include="Inc\MyGameObject.h" />
+    <ClInclude Include="Inc\Lamp.h" />
     <ClInclude Include="Src\pch.h" />
     <ClInclude Include="Inc\Sun.h" />
   </ItemGroup>

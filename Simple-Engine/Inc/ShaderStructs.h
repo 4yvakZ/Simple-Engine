@@ -1,13 +1,14 @@
 #pragma once
 
 namespace SimpleEngine {
-    struct VertexData
+    struct Vertex
     {
-        explicit VertexData(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector2 uv, DirectX::SimpleMath::Vector3 normal, DirectX::SimpleMath::Vector3 tangent);
-        explicit VertexData(DirectX::SimpleMath::Vector3 pos);
+        explicit Vertex(DirectX::SimpleMath::Vector3 pos, DirectX::SimpleMath::Vector2 uv, DirectX::SimpleMath::Vector3 normal, DirectX::SimpleMath::Vector3 tangent);
+        explicit Vertex(DirectX::SimpleMath::Vector3 pos);
+        Vertex();
 
-        DirectX::SimpleMath::Vector3 mPos;
-        DirectX::SimpleMath::Vector2 mUv;
+        DirectX::SimpleMath::Vector3 mPosition;
+        DirectX::SimpleMath::Vector2 mUV;
         DirectX::SimpleMath::Vector3 mNormal;
         DirectX::SimpleMath::Vector3 mTangent;
     };
@@ -27,6 +28,7 @@ namespace SimpleEngine {
 
     struct LightConstBufferData
     {
+        DirectX::SimpleMath::Vector4 mPosition;
         DirectX::SimpleMath::Vector4 mDirection;
         DirectX::SimpleMath::Vector4 mIntensity;
     };

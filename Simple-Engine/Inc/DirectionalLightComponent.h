@@ -13,7 +13,6 @@ namespace SimpleEngine
 		DirectionalLightComponent();
 		// Inherited via LightComponentBase
 		void Init() override;
-		void Update() override;
 		void OnConstructed() override;
 
 		void Bind(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
@@ -35,13 +34,16 @@ namespace SimpleEngine
 
 	private:
 		void InitLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device);
-		void UpdateLightConstBuffer();
+		void UpdateLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);
 	private:
 		LightConstBufferData mLightConstBufferData;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mLightConstBuffer;
 
 		std::shared_ptr<Material> mMaterial;
 		std::unique_ptr<ShadowMap> mShadowMap;
+
+		// Inherited via Component
+		void Update() override;
 	};
 }
 

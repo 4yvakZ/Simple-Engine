@@ -13,7 +13,7 @@ using namespace DirectX::SimpleMath;
 
 void SimpleEngine::DebugRenderer::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
-	UINT strides[] = { sizeof(VertexData) };
+	UINT strides[] = { sizeof(Vertex) };
 	UINT offsets[] = { 0 };
 
 	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -29,13 +29,26 @@ void SimpleEngine::DebugRenderer::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContex
 
 		context->DrawIndexed(mIndexCounts[it->mType], mStartIndexLocations[it->mType], 0);
 	}
+
+	while (!mDebugShapesQueue.empty()) 
+	{
+		auto shape = mDebugShapesQueue.front();
+		shape.mMaterial->Init();
+		shape.mMaterial->Bind(context);
+		UpdateObjectConstBuffer(context, shape.mTransform);
+
+		context->VSSetConstantBuffers(1, 1, mObjectConstBuffer.GetAddressOf());
+
+		context->DrawIndexed(mIndexCounts[shape.mType], mStartIndexLocations[shape.mType], 0);
+		mDebugShapesQueue.pop();
+	}
 }
 
 void SimpleEngine::DebugRenderer::Update(float deltaTime)
 {
 	for (auto it = mDebugShapes.begin(); it < mDebugShapes.end();)
 	{
-		if (!it->mIsImmortal)
+		if (!it->mIsPermanent)
 		{
 			it->mLifeTime -= deltaTime;
 			if (it->mLifeTime < 0)
@@ -52,22 +65,22 @@ void SimpleEngine::DebugRenderer::Init(Microsoft::WRL::ComPtr<ID3D11Device> devi
 {
 	InitObjectConstBuffer(device);
 
-	std::vector<uint32_t> indecis;
-	std::vector<VertexData> vertecis;
+	std::vector<uint32_t> indices;
+	std::vector<Vertex> vertices;
 
-	InitGridVertecis(vertecis, indecis);
-	InitVectorVertecis(vertecis, indecis);
-	InitBoxVerticis(vertecis, indecis);
-	InitSphereVerticis(vertecis, indecis);
+	InitGridvertices(vertices, indices);
+	InitVectorvertices(vertices, indices);
+	InitBoxVerticis(vertices, indices);
+	InitSphereVerticis(vertices, indices);
 	
-	InitVertexBuffer(device, vertecis);
-	InitIndexBuffer(device, indecis);
+	InitVertexBuffer(device, vertices);
+	InitIndexBuffer(device, indices);
 }
 
-void SimpleEngine::DebugRenderer::InitGridVertecis(std::vector<SimpleEngine::VertexData>& vertecis, std::vector<uint32_t>& indecis)
+void SimpleEngine::DebugRenderer::InitGridvertices(std::vector<SimpleEngine::Vertex>& vertices, std::vector<uint32_t>& indices)
 {
-	auto firstPointIndex = vertecis.size();
-	mStartIndexLocations[DebugShapeType::Grid] = static_cast<int>(indecis.size());
+	auto firstPointIndex = vertices.size();
+	mStartIndexLocations[DebugShapeType::Grid] = static_cast<int>(indices.size());
 	const int nPoints = kGridSize * 2 + 1;
 	float offset = static_cast<float>(- (nPoints / 2));
 	
@@ -79,7 +92,7 @@ void SimpleEngine::DebugRenderer::InitGridVertecis(std::vector<SimpleEngine::Ver
 			{
 			case 0:
 			case nPoints - 1:
-				vertecis.emplace_back(Vector3(i + offset, 0, j + offset));
+				vertices.emplace_back(Vector3(i + offset, 0, j + offset));
 				break;
 
 			default:
@@ -87,7 +100,7 @@ void SimpleEngine::DebugRenderer::InitGridVertecis(std::vector<SimpleEngine::Ver
 				{
 				case 0:
 				case nPoints - 1:
-					vertecis.emplace_back(Vector3(i + offset, 0, j + offset));
+					vertices.emplace_back(Vector3(i + offset, 0, j + offset));
 					break;
 
 				default:
@@ -98,97 +111,97 @@ void SimpleEngine::DebugRenderer::InitGridVertecis(std::vector<SimpleEngine::Ver
 		}
 	}
 
-	vertecis.emplace_back(Vector3::Zero); 
-	vertecis.emplace_back(Vector3::UnitX);
-	vertecis.emplace_back(Vector3::UnitZ);
+	vertices.emplace_back(Vector3::Zero); 
+	vertices.emplace_back(Vector3::UnitX);
+	vertices.emplace_back(Vector3::UnitZ);
 
 	for (int i = 0; i < nPoints; i++)
 	{
 		if (i == nPoints / 2) 
 		{
-			indecis.push_back(firstPointIndex + i);
-			indecis.push_back(firstPointIndex + 4 * (nPoints - 1));
-			indecis.push_back(firstPointIndex + 4 * (nPoints - 1) + 1);
-			indecis.push_back(firstPointIndex + i + nPoints + (nPoints - 2) * 2);
+			indices.push_back(firstPointIndex + i);
+			indices.push_back(firstPointIndex + 4 * (nPoints - 1));
+			indices.push_back(firstPointIndex + 4 * (nPoints - 1) + 1);
+			indices.push_back(firstPointIndex + i + nPoints + (nPoints - 2) * 2);
 			continue;
 		}
-		indecis.push_back(firstPointIndex + i);
-		indecis.push_back(firstPointIndex + i + nPoints + (nPoints - 2) * 2);
+		indices.push_back(firstPointIndex + i);
+		indices.push_back(firstPointIndex + i + nPoints + (nPoints - 2) * 2);
 	}
 
-	indecis.push_back(firstPointIndex);
-	indecis.push_back(firstPointIndex + nPoints - 1);
+	indices.push_back(firstPointIndex);
+	indices.push_back(firstPointIndex + nPoints - 1);
 
 	for (int i = 0; i < nPoints - 2; i++)
 	{
 		if (i == (nPoints - 2) / 2)
 		{
-			indecis.push_back(firstPointIndex + 2 * i + nPoints);
-			indecis.push_back(firstPointIndex + 4 * (nPoints - 1));
-			indecis.push_back(firstPointIndex + 4 * (nPoints - 1) + 2);
-			indecis.push_back(firstPointIndex + 2 * i + nPoints + 1);
+			indices.push_back(firstPointIndex + 2 * i + nPoints);
+			indices.push_back(firstPointIndex + 4 * (nPoints - 1));
+			indices.push_back(firstPointIndex + 4 * (nPoints - 1) + 2);
+			indices.push_back(firstPointIndex + 2 * i + nPoints + 1);
 			continue;
 		}
-		indecis.push_back(firstPointIndex + 2 * i + nPoints);
-		indecis.push_back(firstPointIndex + 2 * i + nPoints + 1);
+		indices.push_back(firstPointIndex + 2 * i + nPoints);
+		indices.push_back(firstPointIndex + 2 * i + nPoints + 1);
 	}
 
-	indecis.push_back(firstPointIndex + 4 * (nPoints - 1) - 1);
-	indecis.push_back(firstPointIndex + 3 * (nPoints - 1) - 1);
+	indices.push_back(firstPointIndex + 4 * (nPoints - 1) - 1);
+	indices.push_back(firstPointIndex + 3 * (nPoints - 1) - 1);
 
-	mIndexCounts[DebugShapeType::Grid] = indecis.size() - mStartIndexLocations[DebugShapeType::Grid];
+	mIndexCounts[DebugShapeType::Grid] = indices.size() - mStartIndexLocations[DebugShapeType::Grid];
 }
 
-void SimpleEngine::DebugRenderer::InitVectorVertecis(std::vector<SimpleEngine::VertexData>& vertecis, std::vector<uint32_t>& indecis)
+void SimpleEngine::DebugRenderer::InitVectorvertices(std::vector<SimpleEngine::Vertex>& vertices, std::vector<uint32_t>& indices)
 {
-	auto firstPointIndex = vertecis.size();
-	vertecis.emplace_back(Vector3(0.0, 0.0, 0.0));
-	vertecis.emplace_back(Vector3::UnitX);
+	auto firstPointIndex = vertices.size();
+	vertices.emplace_back(Vector3(0.0, 0.0, 0.0));
+	vertices.emplace_back(Vector3::UnitX);
 
-	mStartIndexLocations[DebugShapeType::Vector] = static_cast<int>(indecis.size());
+	mStartIndexLocations[DebugShapeType::Vector] = static_cast<int>(indices.size());
 	mIndexCounts[DebugShapeType::Vector] = 2;
-	indecis.push_back(firstPointIndex);
-	indecis.push_back(firstPointIndex + 1);
+	indices.push_back(firstPointIndex);
+	indices.push_back(firstPointIndex + 1);
 }
 
-void SimpleEngine::DebugRenderer::InitBoxVerticis(std::vector<SimpleEngine::VertexData>& vertecis, std::vector<uint32_t>& indecis)
+void SimpleEngine::DebugRenderer::InitBoxVerticis(std::vector<SimpleEngine::Vertex>& vertices, std::vector<uint32_t>& indices)
 {
-	auto firstPointIndex = vertecis.size();
+	auto firstPointIndex = vertices.size();
 
 	for (int i = 0; i < 8; i++) 
 	{
-		vertecis.emplace_back(Vector3((i & 1) - 0.5, ((i >> 1) & 1) - 0.5, (i >> 2) - 0.5));
+		vertices.emplace_back(Vector3((i & 1) - 0.5, ((i >> 1) & 1) - 0.5, (i >> 2) - 0.5));
 	}
 
-	mStartIndexLocations[DebugShapeType::Box] = static_cast<int>(indecis.size());
+	mStartIndexLocations[DebugShapeType::Box] = static_cast<int>(indices.size());
 	mIndexCounts[DebugShapeType::Box] = 24;
 	for (int i = 0; i < 4; i++)
 	{
-		indecis.push_back(firstPointIndex + 2 * i);
-		indecis.push_back(firstPointIndex + 2 * i + 1);
+		indices.push_back(firstPointIndex + 2 * i);
+		indices.push_back(firstPointIndex + 2 * i + 1);
 
-		indecis.push_back(firstPointIndex + i);
-		indecis.push_back(firstPointIndex + i + 4);
+		indices.push_back(firstPointIndex + i);
+		indices.push_back(firstPointIndex + i + 4);
 
 		if (i < 2)
 		{
-			indecis.push_back(firstPointIndex + i);
-			indecis.push_back(firstPointIndex + i + 2);
+			indices.push_back(firstPointIndex + i);
+			indices.push_back(firstPointIndex + i + 2);
 		}
 		else
 		{
-			indecis.push_back(firstPointIndex + i + 2);
-			indecis.push_back(firstPointIndex + i + 4);
+			indices.push_back(firstPointIndex + i + 2);
+			indices.push_back(firstPointIndex + i + 4);
 		}
 	}
 
 }
 
-void SimpleEngine::DebugRenderer::InitSphereVerticis(std::vector<SimpleEngine::VertexData>& vertecis, std::vector<uint32_t>& indecis)
+void SimpleEngine::DebugRenderer::InitSphereVerticis(std::vector<SimpleEngine::Vertex>& vertices, std::vector<uint32_t>& indices)
 {
 	// add top vertex
-	auto firstPointIndex = vertecis.size();
-	vertecis.emplace_back(Vector3(0, 1, 0));
+	auto firstPointIndex = vertices.size();
+	vertices.emplace_back(Vector3(0, 1, 0));
 	// generate vertices per stack / slice
 	for (int i = 0; i < kSphereStacks - 1; i++)
 	{
@@ -199,34 +212,34 @@ void SimpleEngine::DebugRenderer::InitSphereVerticis(std::vector<SimpleEngine::V
 			auto x = std::sin(phi) * std::cos(theta);
 			auto y = std::cos(phi);
 			auto z = std::sin(phi) * std::sin(theta);
-			vertecis.emplace_back(Vector3(x, y, z));
+			vertices.emplace_back(Vector3(x, y, z));
 		}
 	}
 
 	// add bottom vertex
-	auto lastPointIndex = vertecis.size();
-	vertecis.emplace_back(Vector3(0, -1, 0));
+	auto lastPointIndex = vertices.size();
+	vertices.emplace_back(Vector3(0, -1, 0));
 
-	mStartIndexLocations[DebugShapeType::Sphere] = static_cast<int>(indecis.size());
+	mStartIndexLocations[DebugShapeType::Sphere] = static_cast<int>(indices.size());
 	// add top / bottom triangles
 	for (int i = 0; i < kSphereStacks; ++i)
 	{
 		auto i0 = i + 1 + firstPointIndex;
 		auto i1 = (i + 1) % kSphereStacks + 1 + firstPointIndex;
-		indecis.push_back(firstPointIndex);
-		indecis.push_back(i1);
-		indecis.push_back(i0);
-		indecis.push_back(firstPointIndex);
-		indecis.push_back(i1);
-		indecis.push_back(i0);
+		indices.push_back(firstPointIndex);
+		indices.push_back(i1);
+		indices.push_back(i0);
+		indices.push_back(firstPointIndex);
+		indices.push_back(i1);
+		indices.push_back(i0);
 		i0 = i + kSphereStacks * (kSphereStacks - 2) + 1 + firstPointIndex;
 		i1 = (i + 1) % kSphereStacks + kSphereStacks * (kSphereStacks - 2) + 1 + firstPointIndex;
-		indecis.push_back(lastPointIndex);
-		indecis.push_back(i0);
-		indecis.push_back(i1);
-		indecis.push_back(lastPointIndex);
-		indecis.push_back(i0);
-		indecis.push_back(i1);
+		indices.push_back(lastPointIndex);
+		indices.push_back(i0);
+		indices.push_back(i1);
+		indices.push_back(lastPointIndex);
+		indices.push_back(i0);
+		indices.push_back(i1);
 	}
 
 	// add quads per stack / slice
@@ -240,21 +253,21 @@ void SimpleEngine::DebugRenderer::InitSphereVerticis(std::vector<SimpleEngine::V
 			auto i1 = j0 + (i + 1) % kSphereStacks + firstPointIndex;
 			auto i2 = j1 + (i + 1) % kSphereStacks + firstPointIndex;
 			auto i3 = j1 + i + firstPointIndex;
-			indecis.push_back(i0);
-			indecis.push_back(i1); 
-			indecis.push_back(i1);
-			indecis.push_back(i2);
-			indecis.push_back(i2);
-			indecis.push_back(i3);
-			indecis.push_back(i3);
-			indecis.push_back(i0);
+			indices.push_back(i0);
+			indices.push_back(i1); 
+			indices.push_back(i1);
+			indices.push_back(i2);
+			indices.push_back(i2);
+			indices.push_back(i3);
+			indices.push_back(i3);
+			indices.push_back(i0);
 		}
 	}
 
-	mIndexCounts[DebugShapeType::Sphere] = indecis.size() - mStartIndexLocations[DebugShapeType::Sphere];
+	mIndexCounts[DebugShapeType::Sphere] = indices.size() - mStartIndexLocations[DebugShapeType::Sphere];
 }
 
-void SimpleEngine::DebugRenderer::DrawDebugSphere(const Transform& centerTransform = Transform(), float radius, DirectX::SimpleMath::Color color, float lifeTime)
+void SimpleEngine::DebugRenderer::DrawDebugSphere(const Transform& centerTransform = Transform(), float radius, DirectX::SimpleMath::Color color, bool isPermanent, float lifeTime)
 {
 	Transform transform = centerTransform;
 	transform.SetScale(Vector3(radius, radius, radius));
@@ -262,22 +275,22 @@ void SimpleEngine::DebugRenderer::DrawDebugSphere(const Transform& centerTransfo
 	DebugShape sphere;
 	sphere.mTransform = transform;
 	sphere.mType = DebugShapeType::Sphere;
-	if (lifeTime == -1)
-	{
-		sphere.mIsImmortal = true;
-	}
-	else
-	{
-		sphere.mIsImmortal = false;
-		sphere.mLifeTime = lifeTime;
-	}
+	sphere.mIsPermanent = isPermanent;
+	sphere.mLifeTime = lifeTime;
 	sphere.mMaterial = AssetManager::GetInstance()->CreateMaterial(MaterialType::Debug);
 	sphere.mMaterial->SetAlbedo(color);
 
-	mDebugShapes.push_back(sphere);
+	if (lifeTime == -1 && !isPermanent)
+	{
+		mDebugShapesQueue.push(sphere);
+	}
+	else
+	{
+		mDebugShapes.push_back(sphere);
+	}
 }
 
-void SimpleEngine::DebugRenderer::DrawDebugBox(const Transform& centerTransform = Transform(), DirectX::SimpleMath::Vector3 size, DirectX::SimpleMath::Color color, float lifeTime)
+void SimpleEngine::DebugRenderer::DrawDebugBox(const Transform& centerTransform = Transform(), DirectX::SimpleMath::Vector3 size, DirectX::SimpleMath::Color color, bool isPermanent, float lifeTime)
 {
 	Transform transform = centerTransform;
 	transform.SetScale(size);
@@ -285,22 +298,22 @@ void SimpleEngine::DebugRenderer::DrawDebugBox(const Transform& centerTransform 
 	DebugShape box;
 	box.mTransform = transform;
 	box.mType = DebugShapeType::Box;
-	if (lifeTime == -1)
-	{
-		box.mIsImmortal = true;
-	}
-	else
-	{
-		box.mIsImmortal = false;
-		box.mLifeTime = lifeTime;
-	}
+	box.mIsPermanent = isPermanent;
+	box.mLifeTime = lifeTime;
 	box.mMaterial = AssetManager::GetInstance()->CreateMaterial(MaterialType::Debug);
 	box.mMaterial->SetAlbedo(color);
 
-	mDebugShapes.push_back(box);
+	if (lifeTime == -1 && !isPermanent)
+	{
+		mDebugShapesQueue.push(box);
+	}
+	else
+	{
+		mDebugShapes.push_back(box);
+	}
 }
 
-void SimpleEngine::DebugRenderer::DrawDebugVector(DirectX::SimpleMath::Vector3 start, DirectX::SimpleMath::Vector3 end, DirectX::SimpleMath::Color color, float lifeTime)
+void SimpleEngine::DebugRenderer::DrawDebugVector(DirectX::SimpleMath::Vector3 start, DirectX::SimpleMath::Vector3 end, DirectX::SimpleMath::Color color, bool isPermanent, float lifeTime)
 {
 	Vector3 vector = end - start;
 
@@ -316,19 +329,19 @@ void SimpleEngine::DebugRenderer::DrawDebugVector(DirectX::SimpleMath::Vector3 s
 	DebugShape vectorShape;
 	vectorShape.mTransform = transform;
 	vectorShape.mType = DebugShapeType::Vector;
-	if (lifeTime == -1) 
-	{
-		vectorShape.mIsImmortal = true;
-	}
-	else
-	{
-		vectorShape.mIsImmortal = false;
-		vectorShape.mLifeTime = lifeTime;
-	}
+	vectorShape.mIsPermanent = isPermanent;
+	vectorShape.mLifeTime = lifeTime;
 	vectorShape.mMaterial = AssetManager::GetInstance()->CreateMaterial(MaterialType::Debug);
 	vectorShape.mMaterial->SetAlbedo(color);
 
-	mDebugShapes.push_back(vectorShape);
+	if (lifeTime == -1 && !isPermanent) 
+	{
+		mDebugShapesQueue.push(vectorShape);
+	}
+	else
+	{
+		mDebugShapes.push_back(vectorShape);
+	}
 }
 
 void SimpleEngine::DebugRenderer::DrawDebugGrid(float cellSize)
@@ -339,15 +352,15 @@ void SimpleEngine::DebugRenderer::DrawDebugGrid(float cellSize)
 	DebugShape grid;
 	grid.mTransform = transform;
 	grid.mType = DebugShapeType::Grid;
-	grid.mIsImmortal = true;
+	grid.mIsPermanent = true;
 	grid.mMaterial = AssetManager::GetInstance()->CreateMaterial(MaterialType::Debug);
 	grid.mMaterial->SetAlbedo(Color(1.0, 1.0, 1.0, 1.0) * 0.5);
 
 	mDebugShapes.push_back(grid);
 
-	DrawDebugVector(Vector3::Zero, Vector3::UnitX * cellSize, Color(1.0, 0.0, 0.0, 1.0) * 0.5);
-	DrawDebugVector(Vector3::Zero, Vector3::UnitY * cellSize, Color(0.0, 1.0, 0.0, 1.0) * 0.5);
-	DrawDebugVector(Vector3::Zero, Vector3::UnitZ * cellSize, Color(0.0, 0.0, 1.0, 1.0) * 0.5);
+	DrawDebugVector(Vector3::Zero, Vector3::UnitX * cellSize, Color(1.0, 0.0, 0.0, 1.0) * 0.5, true);
+	DrawDebugVector(Vector3::Zero, Vector3::UnitY * cellSize, Color(0.0, 1.0, 0.0, 1.0) * 0.5, true);
+	DrawDebugVector(Vector3::Zero, Vector3::UnitZ * cellSize, Color(0.0, 0.0, 1.0, 1.0) * 0.5, true);
 }
 
 std::shared_ptr<SimpleEngine::DebugRenderer> SimpleEngine::DebugRenderer::GetInstance()
@@ -394,7 +407,7 @@ void SimpleEngine::DebugRenderer::UpdateObjectConstBuffer(Microsoft::WRL::ComPtr
 	context->Unmap(mObjectConstBuffer.Get(), 0);
 }
 
-void SimpleEngine::DebugRenderer::InitVertexBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::vector<VertexData>& vertecis)
+void SimpleEngine::DebugRenderer::InitVertexBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::vector<Vertex>& vertices)
 {
 	///vertix buffer initialization
 	D3D11_BUFFER_DESC vertexBufDesc = {};
@@ -403,17 +416,17 @@ void SimpleEngine::DebugRenderer::InitVertexBuffer(Microsoft::WRL::ComPtr<ID3D11
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = static_cast<UINT>(sizeof(VertexData) * std::size(vertecis));
+	vertexBufDesc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * std::size(vertices));
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = vertecis.data();
+	vertexData.pSysMem = vertices.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
 	device->CreateBuffer(&vertexBufDesc, &vertexData, mVertexBuffer.GetAddressOf());
 }
 
-void SimpleEngine::DebugRenderer::InitIndexBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::vector<uint32_t>& indecis)
+void SimpleEngine::DebugRenderer::InitIndexBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device, const std::vector<uint32_t>& indices)
 {
 	///indexBuffer initialization
 	D3D11_BUFFER_DESC indexBufDesc = {};
@@ -422,10 +435,10 @@ void SimpleEngine::DebugRenderer::InitIndexBuffer(Microsoft::WRL::ComPtr<ID3D11D
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = static_cast<UINT>(sizeof(int) * std::size(indecis));
+	indexBufDesc.ByteWidth = static_cast<UINT>(sizeof(int) * std::size(indices));
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indecis.data();
+	indexData.pSysMem = indices.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 

@@ -9,8 +9,14 @@
 
 using namespace DirectX::SimpleMath;
 
-const std::string kDefaultLightPSName = "../shaders/DefaultDeferredLightPS.hlsl";
-const std::string kDefaultLightVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
+const std::string kDefaultPointLightMeshPSName = "../shaders/DefaultDeferredPointLightPS.hlsl";
+const std::string kDefaultPointLightMeshVSName = "../shaders/DefaultDeferredPointLightVS.hlsl";
+
+const std::string kDefaultPointLightQuadPSName = "../shaders/DefaultDeferredPointLightPS.hlsl";
+const std::string kDefaultPointLightQuadVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
+
+const std::string kDefaultDirLightPSName = "../shaders/DefaultDeferredDirLightPS.hlsl";
+const std::string kDefaultDirLightVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
 
 const std::string kDefaultColorPassPSName = "../shaders/DefaultDeferredColorPassPS.hlsl";
 const std::string kDefaultColorPassVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
@@ -22,10 +28,20 @@ SimpleEngine::AssetManager::AssetManager()
 {
 	mDefaultMaterial = std::make_shared<Material>();
 
-	mDefaultDirectLightMaterial = std::make_shared<Material>();
-	mDefaultDirectLightMaterial->SetPSFileName(kDefaultLightPSName);
-	mDefaultDirectLightMaterial->SetVSFileName(kDefaultLightVSName);
-	mDefaultDirectLightMaterial->SetType(MaterialType::Light);
+	mDefaultDirectionalLightMaterial = std::make_shared<Material>();
+	mDefaultDirectionalLightMaterial->SetPSFileName(kDefaultDirLightPSName);
+	mDefaultDirectionalLightMaterial->SetVSFileName(kDefaultDirLightVSName);
+	mDefaultDirectionalLightMaterial->SetType(MaterialType::Light);
+
+	mDefaultPointLightMeshMaterial = std::make_shared<Material>();
+	mDefaultPointLightMeshMaterial->SetPSFileName(kDefaultPointLightMeshPSName);
+	mDefaultPointLightMeshMaterial->SetVSFileName(kDefaultPointLightMeshVSName);
+	mDefaultPointLightMeshMaterial->SetType(MaterialType::Light);
+
+	mDefaultPointLightQuadMaterial = std::make_shared<Material>();
+	mDefaultPointLightQuadMaterial->SetPSFileName(kDefaultPointLightQuadPSName);
+	mDefaultPointLightQuadMaterial->SetVSFileName(kDefaultPointLightQuadVSName);
+	mDefaultPointLightQuadMaterial->SetType(MaterialType::Light);
 
 	mDefaultColorPassMaterial = std::make_shared<Material>();
 	mDefaultColorPassMaterial->SetPSFileName(kDefaultColorPassPSName);
@@ -42,8 +58,10 @@ void SimpleEngine::AssetManager::Init()
 {
 	mDefaultDebugMaterial->Init();
 	mDefaultColorPassMaterial->Init();
-	mDefaultDirectLightMaterial->Init();
+	mDefaultDirectionalLightMaterial->Init();
 	mDefaultMaterial->Init();
+	mDefaultPointLightQuadMaterial->Init();
+	mDefaultPointLightMeshMaterial->Init();
 
 	for (auto& material : mMaterials) {
 		material->Init();
@@ -96,15 +114,6 @@ std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::CreateMateri
 	case SimpleEngine::MaterialType::Opacue:
 		material = std::make_shared<Material>(*(mDefaultMaterial.get()));
 		break;
-
-	case SimpleEngine::MaterialType::Light:
-		material =  std::make_shared<Material>(*(mDefaultDirectLightMaterial.get()));
-		break;
-
-	case SimpleEngine::MaterialType::ColorPass:
-		material = std::make_shared<Material>(*(mDefaultColorPassMaterial.get()));
-		break;
-
 	case SimpleEngine::MaterialType::Debug:
 		material = std::make_shared<Material>(*(mDefaultDebugMaterial.get()));
 		break;
@@ -122,9 +131,19 @@ std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultMa
 	return mDefaultMaterial;
 }
 
-std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultLightMaterial()
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultDirectionalLightMaterial()
 {
-	return mDefaultDirectLightMaterial;
+	return mDefaultDirectionalLightMaterial;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultPointLightMeshMaterial()
+{
+	return mDefaultPointLightMeshMaterial;
+}
+
+std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultPointLightQuadMaterial()
+{
+	return mDefaultPointLightQuadMaterial;
 }
 
 std::shared_ptr<SimpleEngine::Material> SimpleEngine::AssetManager::GetDefaultColorPassMaterial()
@@ -146,12 +165,12 @@ void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, 
 			std::shared_ptr<Mesh> myMesh = std::make_shared<Mesh>();
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
-			size_t nVertecis = mesh->mNumVertices;
-			aiVector3D* vertecis = mesh->mVertices;
+			size_t nvertices = mesh->mNumVertices;
+			aiVector3D* vertices = mesh->mVertices;
 
-			for (size_t i = 0; i < nVertecis; i++)
+			for (size_t i = 0; i < nvertices; i++)
 			{
-				aiVector3D vertex = vertecis[i];
+				aiVector3D vertex = vertices[i];
 
 				Vector3 point = Vector3(vertex.x,
 					vertex.y,
@@ -161,7 +180,7 @@ void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, 
 				Vector3 normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 				Vector3 tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 
-				myMesh->mVertecis.emplace_back(point, UV, normal, tangent);
+				myMesh->mVertices.emplace_back(point, UV, normal, tangent);
 			}
 
 
@@ -169,9 +188,9 @@ void SimpleEngine::AssetManager::SearchNode(const aiScene* scene, aiNode* node, 
 			aiFace* meshFaces = mesh->mFaces;
 			for (size_t i = 0; i < nFaces; i++)
 			{
-				myMesh->mIndecis.push_back(meshFaces[i].mIndices[0]);
-				myMesh->mIndecis.push_back(meshFaces[i].mIndices[1]);
-				myMesh->mIndecis.push_back(meshFaces[i].mIndices[2]);
+				myMesh->mIndices.push_back(meshFaces[i].mIndices[0]);
+				myMesh->mIndices.push_back(meshFaces[i].mIndices[1]);
+				myMesh->mIndices.push_back(meshFaces[i].mIndices[2]);
 			}
 
 			meshes.push_back(myMesh);

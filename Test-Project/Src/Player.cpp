@@ -4,13 +4,18 @@
 
 using namespace SimpleEngine;
 
-void Player::Init()
+Player::Player(std::shared_ptr<GameObject> parent):
+	GameObject(parent)
 {
 	using namespace DirectX::SimpleMath;
 	mCameraComponent = CreateComponent<CameraComponent>();
 	auto camTransform = mCameraComponent->GetTransform();
 	camTransform.SetPosition(Vector3(0, 0, 0));
 	mCameraComponent->SetTransform(camTransform);
+}
+
+void Player::Init()
+{
 	Game::GetInputDevice()->MouseMove.AddRaw(this, &Player::mouseMoveHandler, 10);
 	GameObject::Init();
 }

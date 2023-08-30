@@ -7,15 +7,15 @@ using namespace DirectX::SimpleMath;
 
 SimpleEngine::SpriteComponent::SpriteComponent(std::shared_ptr<Material> material) :
 	RenderComponent(material),
-	mVertecis(),
-	mIndecis{0, 1, 2, 3}
+	mVertices(),
+	mIndices{0, 1, 2, 3}
 {
 }
 
 void SimpleEngine::SpriteComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	///Setup AI stage
-	UINT strides[] = { sizeof(VertexData) };
+	UINT strides[] = { sizeof(Vertex) };
 	UINT offsets[] = { 0 };
 
 	//GetMaterial()->Bind(context);
@@ -27,25 +27,25 @@ void SimpleEngine::SpriteComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceCont
 	/*context->VSSetConstantBuffers(0, 1, &constBuffer);
 	context->PSSetConstantBuffers(0, 1, &constBuffer);*/
 
-	context->DrawIndexed(static_cast<UINT>(mIndecis.size()), 0, 0);
+	context->DrawIndexed(static_cast<UINT>(mIndices.size()), 0, 0);
 }
 
 void SimpleEngine::SpriteComponent::Init()
 {
 	RenderComponent::Init();
 
-	mVertecis.reserve(4);
+	mVertices.reserve(4);
 
-	VertexData point(Vector3 (-0.5, -0.5, 0.5));
-	mVertecis.push_back(point);
-	point.mPos.y = 0.5;
-	mVertecis.push_back(point);
-	point.mPos.y = -0.5;
-	point.mPos.x = 0.5;
-	mVertecis.push_back(point);
-	point.mPos.y = 0.5;
-	mVertecis.push_back(point);
+	Vertex point(Vector3 (-0.5, -0.5, 0.5));
+	mVertices.push_back(point);
+	point.mPosition.y = 0.5;
+	mVertices.push_back(point);
+	point.mPosition.y = -0.5;
+	point.mPosition.x = 0.5;
+	mVertices.push_back(point);
+	point.mPosition.y = 0.5;
+	mVertices.push_back(point);
 
-	InitVertexBuffer(mVertecis);
-	InitIndexBuffer(mIndecis);
+	InitVertexBuffer(mVertices);
+	InitIndexBuffer(mIndices);
 }

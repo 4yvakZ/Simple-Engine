@@ -10,6 +10,7 @@ int getCascadeLayer(float depthValue);
 
 float4 main(ALIGNED_QUAD_PS_IN input) : SV_Target
 {
+    //return float4(input.uv, 0, 1);
     uint width, height;
     WorldPosTex.GetDimensions(width, height);
     int2 pixelCoord = int2(input.uv.x * width, input.uv.y * height);
@@ -23,48 +24,15 @@ float4 main(ALIGNED_QUAD_PS_IN input) : SV_Target
     float3 metallicRoughnessAO = MetallicRoughnessAOMap.Load(int3(pixelCoord, 0));
     float metallic = metallicRoughnessAO.r;
     float roughness = metallicRoughnessAO.g;
-    
-    int layer = getCascadeLayer(abs(mul(worldPos, view).z));
-    
-    /*switch (layer)
-    {
-        case 3:
-            return float4(1, 0, 0, 1);
-        case 2:
-            return float4(0, 1, 0, 1);
-        case 1:
-            return float4(0, 0, 1, 1);
-        case 0:
-            return float4(1, 1, 1, 1);
-    }*/
-    
-    float3 lightSpacePos = mul(worldPos, cascade.viewProjection[layer]);
-    
-    float2 shadowTexCoords;
-    shadowTexCoords.x = 0.5f + (lightSpacePos.x * 0.5f);
-    shadowTexCoords.y = 0.5f - (lightSpacePos.y * 0.5f);
-    float pixelDepth = lightSpacePos.z;
-    
-    float shadow = 0;
-    //shadow = ShadowMap.SampleCmpLevelZero(ShadowSampler, float3(shadowTexCoords, layer), pixelDepth);
-    
-    uint mapWidth, mapHeight, elem;
-    ShadowMap.GetDimensions(mapWidth, mapHeight, elem);
-    float2 pixelSize = float2(1.0f / mapWidth, 1.0f / mapHeight);
-    for (int x = -1; x < 2; x++)
-    {
-        for (int y = -1; y < 2; y++)
-        {
-            float2 pixel = float2(x, y) * pixelSize + shadowTexCoords;
-            shadow += ShadowMap.SampleCmpLevelZero(ShadowSampler, float3(pixel, layer), pixelDepth);
-        }
-    }
-    shadow /= 9;
        
     float3 F0 = float3(0.04, 0.04, 0.04);
     F0 = lerp(F0, albedo, metallic);
     
-    float3 lightDir = -light.direction.xyz;
+    float3 lightDir = normalize(light.position - worldPos);
+    float distance = length(light.position - worldPos);
+    float attenuation = 1.0 / (distance * distance);
+    float3 intensity = light.intensity.xyz * attenuation;
+    
     float3 view = normalize(cameraPos - worldPos);
     float3 halfVector = normalize(view + lightDir);
     
@@ -84,9 +52,9 @@ float4 main(ALIGNED_QUAD_PS_IN input) : SV_Target
             
     // add to outgoing radiance Lo
     float NdotL = max(dot(normal, lightDir), 0.0);
-    float3 Lo = (kD * albedo / PI + specular) * light.intensity.xyz * NdotL;
+    float3 Lo = (kD * albedo / PI + specular) * intensity * NdotL;
     
-    return float4(Lo * shadow, 1.0f);
+    return float4(Lo, 1.0f);
 }
 
 

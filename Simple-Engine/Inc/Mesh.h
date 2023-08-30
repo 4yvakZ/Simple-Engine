@@ -8,12 +8,12 @@ namespace SimpleEngine {
 		Mesh() = default;
 		friend class AssetManager;
 
-		const std::vector<SimpleEngine::VertexData>& GetVertecis() const;
+		const std::vector<SimpleEngine::Vertex>& Getvertices() const;
 
-		const std::vector<uint32_t>& GetIndecis() const;
+		const std::vector<uint32_t>& Getindices() const;
 	private:
-		std::vector<SimpleEngine::VertexData> mVertecis;
-		std::vector<uint32_t> mIndecis;
+		std::vector<SimpleEngine::Vertex> mVertices;
+		std::vector<uint32_t> mIndices;
 	};
 }
 

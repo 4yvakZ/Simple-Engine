@@ -60,7 +60,7 @@ void SimpleEngine::GBuffer::SetLightingTarget(Microsoft::WRL::ComPtr<ID3D11Devic
 {
 	context->RSSetViewports(1, mViewport.Get11());
 
-	context->OMSetRenderTargets(1, mLightingRTV.GetAddressOf(), nullptr);
+	context->OMSetRenderTargets(1, mLightingRTV.GetAddressOf(), mDepthStencilView.Get());
 }
 
 void SimpleEngine::GBuffer::BindLighting(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)

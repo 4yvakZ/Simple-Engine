@@ -21,8 +21,6 @@ namespace SimpleEngine
 			Orthographic
 		};
 
-
-
 		DirectX::SimpleMath::Matrix GetView() const;
 		DirectX::SimpleMath::Matrix GetProjection() const;
 		DirectX::SimpleMath::Matrix CreateProjection(float nearPlane, float farPlane) const;

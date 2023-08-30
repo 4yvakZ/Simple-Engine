@@ -24,7 +24,9 @@ namespace SimpleEngine {
 		std::shared_ptr<Material> CreateMaterial(MaterialType materialType);
 		
 		std::shared_ptr<Material> GetDefaultMaterial();
-		std::shared_ptr<Material> GetDefaultLightMaterial();
+		std::shared_ptr<Material> GetDefaultDirectionalLightMaterial();
+		std::shared_ptr<Material> GetDefaultPointLightMeshMaterial();
+		std::shared_ptr<Material> GetDefaultPointLightQuadMaterial();
 		std::shared_ptr<Material> GetDefaultColorPassMaterial();
 		std::shared_ptr<Material> GetDefaultDebugMaterial();
 
@@ -35,9 +37,11 @@ namespace SimpleEngine {
 
 		static inline std::shared_ptr<AssetManager> sInstance = nullptr;
 		std::shared_ptr<Material> mDefaultMaterial;
-		std::shared_ptr<Material> mDefaultDirectLightMaterial;
+		std::shared_ptr<Material> mDefaultDirectionalLightMaterial;
 		std::shared_ptr<Material> mDefaultColorPassMaterial;
 		std::shared_ptr<Material> mDefaultDebugMaterial;
+		std::shared_ptr<Material> mDefaultPointLightMeshMaterial;
+		std::shared_ptr<Material> mDefaultPointLightQuadMaterial;
 
 		std::vector<std::shared_ptr<Material>> mMaterials;
 	};

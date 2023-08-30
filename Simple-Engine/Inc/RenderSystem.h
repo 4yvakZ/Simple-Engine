@@ -4,6 +4,7 @@
 namespace SimpleEngine {
 
 	class DirectionalLightComponent;
+	class PointLightComponent;
 	class RenderComponent;
 	class MeshRenderer;
 	class GBuffer;
@@ -18,7 +19,7 @@ namespace SimpleEngine {
 			Normals = 1,
 			Albedo = 2,
 			MetallicRoughnessAO = 3,
-			Lighting
+			Lighting = 4
 		};
 
 		explicit RenderSystem(HWND hWnd, int ClientWidth, int ClientHeight);
@@ -42,6 +43,7 @@ namespace SimpleEngine {
 		void AddRenderComponent(std::shared_ptr<RenderComponent> renderComponent);
 
 		void AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent);
+		void AddPointLightComponent(std::shared_ptr<PointLightComponent> lightComponent);
 
 		void SetDebugFlag(DebugFlag flag);
 
@@ -49,8 +51,6 @@ namespace SimpleEngine {
 		virtual void Init(HWND hWnd, int ClientWidth, int ClientHeight);
 
 	private:
-		void InitDepthBuffer();
-
 		void InitDepthStencilStateOff();
 
 		void InitBlendState();
@@ -76,8 +76,6 @@ namespace SimpleEngine {
 
 		DirectX::SimpleMath::Viewport mViewport;
 
-		Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRastState;
-
 		std::unique_ptr<GBuffer> mGBuffer;
 		std::shared_ptr<DebugRenderer> mDebugRenderer;
 
@@ -85,6 +83,7 @@ namespace SimpleEngine {
 		std::vector<std::weak_ptr<RenderComponent>> mRenderComponents;
 
 		std::vector<std::weak_ptr<DirectionalLightComponent>> mDirectionalLightComponents;
+		std::vector<std::weak_ptr<PointLightComponent>> mPointLightComponents;
 
 		DebugFlag mDebugFlag = DebugFlag::None;
 	};

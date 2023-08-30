@@ -7,6 +7,7 @@
 #include "MeshComponent.h"
 #include "AssetManager.h"
 #include "Mesh.h"
+#include "DebugRenderer.h"
 
 using namespace SimpleEngine;
 using namespace DirectX::SimpleMath;
@@ -26,9 +27,13 @@ void MyGameObject::Init()
 
 void MyGameObject::Update(float deltaTime)
 {
-	auto transform = GetTransform();
-	transform.SetRotation(transform.GetRotation() * Quaternion::CreateFromAxisAngle(Vector3::Up, mRotationSpeed * deltaTime));
-	SetTransform(transform);
+	if (mRotationSpeed != 0)
+	{
+		auto transform = GetTransform();
+		transform.SetRotation(transform.GetRotation() * Quaternion::CreateFromAxisAngle(Vector3::Up, mRotationSpeed * deltaTime));
+		SetTransform(transform);
+		//DebugRenderer::GetInstance()->DrawDebugSphere(transform, 1);
+	}	
 
 	GameObject::Update(deltaTime);
 }

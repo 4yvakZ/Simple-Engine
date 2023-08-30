@@ -6,6 +6,7 @@
 #include "Material.h"
 #include "AssetManager.h"
 #include "DebugRenderer.h"
+#include "PointLightComponent.h"
 
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
@@ -90,6 +91,7 @@ void SimpleEngine::RenderSystem::InitDepthStencilStateOff()
 {
 	D3D11_DEPTH_STENCIL_DESC stateDesc = {};
 	stateDesc.DepthEnable = false;
+	stateDesc.StencilEnable = false;
 
 	mDevice->CreateDepthStencilState(&stateDesc, mDepthStencilStateOff.GetAddressOf());
 }
@@ -258,7 +260,24 @@ void SimpleEngine::RenderSystem::Draw()
 		}
 	}
 
+	for (auto it = mPointLightComponents.begin(); it < mPointLightComponents.end(); )
+	{
+		auto pointLight = it->lock();
+
+		if (pointLight)
+		{
+			pointLight->Draw(mContext);
+			it++;
+		}
+		else
+		{
+			it = mPointLightComponents.erase(it);
+		}
+	}
+
 	mContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+
+	mContext->OMSetDepthStencilState(mDepthStencilStateOff.Get(), 0);
 
 	///Finishing Deferred render by combining lighting with albedo and ambient
 	switch (mDebugFlag)
@@ -340,6 +359,11 @@ void SimpleEngine::RenderSystem::AddRenderComponent(std::shared_ptr<RenderCompon
 void SimpleEngine::RenderSystem::AddDirectionalLightComponent(std::shared_ptr<DirectionalLightComponent> lightComponent)
 {
 	mDirectionalLightComponents.emplace_back(lightComponent);
+}
+
+void SimpleEngine::RenderSystem::AddPointLightComponent(std::shared_ptr<PointLightComponent> lightComponent)
+{
+	mPointLightComponents.emplace_back(lightComponent);
 }
 
 void SimpleEngine::RenderSystem::SetDebugFlag(DebugFlag flag)

@@ -14,8 +14,8 @@ namespace SimpleEngine
 		virtual void Init() override;
 
 	private:
-		std::vector<VertexData> mVertecis;
-		std::vector<uint32_t> mIndecis;
+		std::vector<Vertex> mVertices;
+		std::vector<uint32_t> mIndices;
 	};
 }
 

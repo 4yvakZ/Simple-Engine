@@ -52,6 +52,7 @@ cbuffer OBJECT_CONST_BUF : register(b1)
 
 struct LightData
 {
+    float4 position;
     float4 direction;
     float4 intensity;
 };

@@ -6,7 +6,7 @@
 namespace SimpleEngine
 {
 	class Material;
-	struct VertexData;
+	struct Vertex;
 
 	class RenderComponent : public SceneComponent
 	{
@@ -27,8 +27,8 @@ namespace SimpleEngine
 		void SetMaterial(std::shared_ptr<Material> material);
 
 	protected:
-		void InitVertexBuffer(const std::vector<VertexData>& vertecis);
-		void InitIndexBuffer(const std::vector<uint32_t>& indecis);
+		void InitVertexBuffer(const std::vector<Vertex>& vertices);
+		void InitIndexBuffer(const std::vector<uint32_t>& indices);
 		Microsoft::WRL::ComPtr<ID3D11Buffer> GetIndexBuffer() const;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer() const;
 

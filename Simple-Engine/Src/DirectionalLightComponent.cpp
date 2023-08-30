@@ -10,10 +10,10 @@
 using namespace DirectX::SimpleMath;
 constexpr Vector4 kDefaultLightDirection =  Vector4 (-1, -1, -1, 0);
 constexpr Vector4 kDefaultLightIntensity = Vector4 (1, 1, 1, 0);
-constexpr int kShadowMapWidth = 4096;
+constexpr int kShadowMapWidth = 2048;
 
 SimpleEngine::DirectionalLightComponent::DirectionalLightComponent():
-	mMaterial(AssetManager::GetInstance()->GetDefaultLightMaterial())
+	mMaterial(AssetManager::GetInstance()->GetDefaultDirectionalLightMaterial())
 {
 	mLightConstBufferData.mDirection = kDefaultLightDirection;
 	mLightConstBufferData.mDirection.Normalize();
@@ -27,11 +27,6 @@ void SimpleEngine::DirectionalLightComponent::Init()
 	InitLightConstBuffer(device);
 	
 	mShadowMap->Init(device);
-}
-
-void SimpleEngine::DirectionalLightComponent::Update()
-{
-	UpdateLightConstBuffer();
 }
 
 void SimpleEngine::DirectionalLightComponent::OnConstructed()
@@ -49,6 +44,8 @@ void SimpleEngine::DirectionalLightComponent::Bind(Microsoft::WRL::ComPtr<ID3D11
 
 void SimpleEngine::DirectionalLightComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
+	UpdateLightConstBuffer(context);
+
 	mMaterial->Bind(context);
 	Bind(context);
 	context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -118,15 +115,18 @@ void SimpleEngine::DirectionalLightComponent::InitLightConstBuffer(Microsoft::WR
 	device->CreateBuffer(&constBufDesc, &constData, mLightConstBuffer.GetAddressOf());
 }
 
-void SimpleEngine::DirectionalLightComponent::UpdateLightConstBuffer()
+void SimpleEngine::DirectionalLightComponent::UpdateLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
-	auto context = Game::GetRenderSystem()->getContext();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 	context->Map(mLightConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-	memcpy(mappedResource.pData, &mLightConstBufferData, sizeof(FrameConstBufferData));
+	memcpy(mappedResource.pData, &mLightConstBufferData, sizeof(LightConstBufferData));
 
 	context->Unmap(mLightConstBuffer.Get(), 0);
+}
+
+void SimpleEngine::DirectionalLightComponent::Update()
+{
 }

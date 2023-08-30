@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "Mesh.h"
 
-const std::vector<SimpleEngine::VertexData>& SimpleEngine::Mesh::GetVertecis() const
+const std::vector<SimpleEngine::Vertex>& SimpleEngine::Mesh::Getvertices() const
 {
-	return mVertecis;
+	return mVertices;
 }
 
-const std::vector<uint32_t>& SimpleEngine::Mesh::GetIndecis() const
+const std::vector<uint32_t>& SimpleEngine::Mesh::Getindices() const
 {
-	return mIndecis;
+	return mIndices;
 }

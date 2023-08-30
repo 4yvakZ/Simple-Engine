@@ -5,6 +5,7 @@
 class Player : public SimpleEngine::GameObject
 {
 public:
+	explicit Player(std::shared_ptr<GameObject> parent = nullptr);
 	virtual void Init() override;
 	virtual void Update(float deltaTime) override;
 private:

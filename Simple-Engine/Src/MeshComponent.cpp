@@ -18,7 +18,7 @@ SimpleEngine::MeshComponent::MeshComponent(std::shared_ptr<Mesh> mesh, std::shar
 void SimpleEngine::MeshComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context)
 {
 	///Setup AI stage
-	UINT strides[] = { sizeof(VertexData) };
+	UINT strides[] = { sizeof(Vertex) };
 	UINT offsets[] = { 0 };
 
 	//GetMaterial()->Bind(context);
@@ -30,13 +30,13 @@ void SimpleEngine::MeshComponent::Draw(Microsoft::WRL::ComPtr<ID3D11DeviceContex
 	context->VSSetConstantBuffers(1, 1, GetObjectConstBuffer().GetAddressOf());
 	context->PSSetConstantBuffers(1, 1, GetObjectConstBuffer().GetAddressOf());
 
-	context->DrawIndexed(static_cast<UINT>(mMesh->GetIndecis().size()), 0, 0);
+	context->DrawIndexed(static_cast<UINT>(mMesh->Getindices().size()), 0, 0);
 }
 
 void SimpleEngine::MeshComponent::Init()
 {
 	RenderComponent::Init();
 
-	InitVertexBuffer(mMesh->GetVertecis());
-	InitIndexBuffer(mMesh->GetIndecis());
+	InitVertexBuffer(mMesh->Getvertices());
+	InitIndexBuffer(mMesh->Getindices());
 }

@@ -7,7 +7,7 @@ Lamp::Lamp(std::shared_ptr<GameObject> parent):
 	GameObject(parent)
 {
 	mPointLight = CreateComponent<SimpleEngine::PointLightComponent>();
-	mPointLight->SetLightIntensity(DirectX::SimpleMath::Vector4::One * 2);
+	mPointLight->SetLightIntensity(DirectX::SimpleMath::Vector4::One * 4);
 }
 
 void Lamp::Update(float deltaTime)

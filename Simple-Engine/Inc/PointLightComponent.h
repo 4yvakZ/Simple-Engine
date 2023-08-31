@@ -21,6 +21,8 @@ namespace SimpleEngine
 		DirectX::SimpleMath::Vector4 GetLightIntensity() const;
 		void SetLightIntensity(DirectX::SimpleMath::Vector4 lightIntensity);
 
+		float GetLightRadius() const;
+
 	private:
 		void InitLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device);
 		void UpdateLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11DeviceContext> context);

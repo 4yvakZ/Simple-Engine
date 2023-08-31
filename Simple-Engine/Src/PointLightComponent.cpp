@@ -9,16 +9,16 @@
 
 using namespace DirectX::SimpleMath;
 constexpr Vector4 kDefaultLightIntensity = Vector4(1, 1, 1, 0);
+constexpr double kMinIntensityThreshold = 0.05;
 constexpr int kNumberGeosphereSubdivision = 3;
 
 const std::string kQuadVSName = "../shaders/DefaultAlignedQuadVS.hlsl";
 
 SimpleEngine::PointLightComponent::PointLightComponent():
-	//TODO DefaultPointLightMaterial
 	mMeshMaterial(AssetManager::GetInstance()->GetDefaultPointLightMeshMaterial()),
 	mQuadMaterial(AssetManager::GetInstance()->GetDefaultPointLightQuadMaterial())
 {
-	mLightConstBufferData.mIntensity = kDefaultLightIntensity;
+	SetLightIntensity(kDefaultLightIntensity);
 }
 
 void SimpleEngine::PointLightComponent::Update()
@@ -133,8 +133,14 @@ DirectX::SimpleMath::Vector4 SimpleEngine::PointLightComponent::GetLightIntensit
 void SimpleEngine::PointLightComponent::SetLightIntensity(DirectX::SimpleMath::Vector4 lightIntensity)
 {
 	mLightConstBufferData.mIntensity = lightIntensity;
-	//auto mean
-	//mLightRadius = sqrt
+	auto mean = (lightIntensity.x + lightIntensity.y + lightIntensity.z) / 3.0;
+	mLightRadius = sqrt(mean / kMinIntensityThreshold);
+	//std::cout << mLightRadius << "\n";
+}
+
+float SimpleEngine::PointLightComponent::GetLightRadius() const
+{
+	return mLightRadius;
 }
 
 void SimpleEngine::PointLightComponent::InitLightConstBuffer(Microsoft::WRL::ComPtr<ID3D11Device> device)
